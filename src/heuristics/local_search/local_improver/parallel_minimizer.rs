@@ -1,35 +1,39 @@
+use rayon::iter::ParallelBridge;
+use rayon::iter::ParallelIterator;
+
 use super::super::Neighborhood;
 use super::LocalImprover;
 use crate::objective::EvaluatedSolution;
 use crate::objective::Objective;
 use std::sync::Arc;
 
-/// Minimizer searches the whole neighborhood of a solution and returns the best neighbor.
-/// * No parallelism is used.
-/// * Works for every solution type S.
-/// * Is fast if the computation and the evaluating of a neighbor is cheap.
-pub struct Minimizer<S> {
+/// ParallelMinimizer searches the whole neighborhood of a solution and returns the best neighbor.
+/// * This is done in parallel using par_bridge of rayon.
+/// * If the computation or the evaluation of a neighbor is CPU-heavy this might be a good choice.
+/// * Solution type S must implement Send and Sync.
+pub struct ParallelMinimizer<S> {
     neighborhood: Arc<dyn Neighborhood<S>>,
     objective: Arc<Objective<S>>,
 }
 
-impl<S> Minimizer<S> {
+impl<S> ParallelMinimizer<S> {
     pub fn new(
         neighborhood: Arc<dyn Neighborhood<S>>,
         objective: Arc<Objective<S>>,
-    ) -> Minimizer<S> {
-        Minimizer {
+    ) -> ParallelMinimizer<S> {
+        ParallelMinimizer {
             neighborhood,
             objective,
         }
     }
 }
 
-impl<S> LocalImprover<S> for Minimizer<S> {
+impl<S: Send + Sync> LocalImprover<S> for ParallelMinimizer<S> {
     fn improve(&self, solution: &EvaluatedSolution<S>) -> Option<EvaluatedSolution<S>> {
         let best_neighbor_opt = self
             .neighborhood
             .neighbors_of(solution.solution())
+            .par_bridge()
             .map(|neighbor| self.objective.evaluate(neighbor))
             .min_by(|s1, s2| {
                 s1.objective_value()

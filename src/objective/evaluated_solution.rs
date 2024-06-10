@@ -1,5 +1,6 @@
 use super::ObjectiveValue;
 
+/// A solution that has been evaluated by an objective.
 #[derive(Clone, Ord, PartialOrd, PartialEq, Eq)]
 pub struct EvaluatedSolution<S> {
     objective_value: ObjectiveValue,

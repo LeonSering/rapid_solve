@@ -17,6 +17,6 @@ fn main() {
     let tour = TspTour::from_instance_nearest_neighbor(tsp_instance.clone());
 
     // let solver = solvers::basic_three_opt_local_search::build(tsp_instance.clone());
-    let solver = solvers::take_any_three_opt_local_search::build(tsp_instance.clone());
+    let solver = solvers::take_first_three_opt_local_search::build(tsp_instance.clone());
     solver.solve(tour.clone());
 }

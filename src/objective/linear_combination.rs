@@ -2,7 +2,7 @@ use std::fmt;
 
 use super::{base_value::BaseValue, coefficient::Coefficient, indicator::Indicator};
 
-/// A linear combination of indicators.
+/// A linear combination of indicators. Forms a level of the objective.
 pub struct LinearCombination<S> {
     // valueType must be multiplyable with Coefficient
     summands: Vec<(Coefficient, Box<dyn Indicator<S>>)>,

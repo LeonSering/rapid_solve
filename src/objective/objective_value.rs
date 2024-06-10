@@ -6,7 +6,7 @@ use std::{
 
 use super::base_value::BaseValue;
 
-/// the hierarchical objective value of a schedule
+/// The hierarchical objective value of a solution.
 #[derive(Clone, Debug)]
 pub struct ObjectiveValue {
     objective_vector: Vec<BaseValue>,

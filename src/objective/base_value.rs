@@ -9,12 +9,12 @@ use crate::time::Duration;
 
 const TOLERANCE: f64 = 0.0001;
 
-/// A single value of an indicator. E.g., count of things, durations, costs
+/// A single value of an Indicator or LinearCombinations. E.g., count of things, durations, costs
 #[derive(Debug, Clone, Copy)]
 pub enum BaseValue {
-    Integer(i64), // cannot handle negative values
+    Integer(i64),
     Float(f64),
-    Duration(Duration), // cannot handle negative values
+    Duration(Duration), // cannot handle negative durations
     Maximum,
     Zero,
 }

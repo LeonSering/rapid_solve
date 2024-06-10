@@ -7,18 +7,26 @@ use rayon::prelude::*;
 use std::sync::mpsc::channel;
 use std::sync::Arc;
 use std::sync::Mutex;
-/// This improver uses parallel computation at two steps. In the recursion when multiple solutions
-/// are given, each solution get its own thread. Within each thread the neighborhood iterator is tranformed
-/// to a ParallelIterator (messes up the ordering) and search for ANY improving solution in
-/// parallel.
-/// As soon as an improving soltion is found a terminus-signal is broadcast to all other solutions.
-/// If no improving solution is found the width-many solutions of each thread are take to recursion
-/// (dublicates are removed)
-/// Due to the parallel computation and find_any() this improver is often the fastest but not
-/// deterministic.
+
+/// This improver searches in parallel for an improving neighbor. The first one that is found by
+/// any thread is taken. If no improving neighbor is found, the best solutions found are taken to
+/// recursion.
+/// * uses parallel computation at two steps:
+///   - In the recursion when multiple solutions are given, each solution get its own thread.
+///   - Within each thread the neighborhood iterator is tranformed to a ParallelIterator (messes
+/// up the ordering)
+/// * As soon as an improving solution is found a terminus-signal is broadcast to all other threads.
+/// * If no improving solution is found the best recursion_width-many solutions per thread (!) are
+/// take to recursion
+/// (dublicates are removed).
+/// * Is can be fast if the computation or evaluation of a neighbor is CPU-heavy and the neighborhood
+/// is large.
+/// * Produces quite a bit of overhead.
+/// * Is not deterministic.
+/// * The diversification for recursion is probably low.
 pub struct TakeAnyParallelRecursion<S> {
     recursion_depth: u8,
-    recursion_width: Option<usize>, // number of schedule that are considered per schedule for the next recursion (the one with best objectivevalue are taken for each schedule, dublicates are removed)
+    recursion_width: u8,
     neighborhood: Arc<dyn Neighborhood<S>>,
     objective: Arc<Objective<S>>,
 }
@@ -33,7 +41,7 @@ impl<S: Send + Sync + Clone + PartialOrd> LocalImprover<S> for TakeAnyParallelRe
 impl<S: Send + Sync + Clone + PartialOrd> TakeAnyParallelRecursion<S> {
     pub fn new(
         recursion_depth: u8,
-        recursion_width: Option<usize>,
+        recursion_width: u8,
         neighborhood: Arc<dyn Neighborhood<S>>,
         objective: Arc<Objective<S>>,
     ) -> TakeAnyParallelRecursion<S> {
@@ -82,18 +90,15 @@ impl<S: Send + Sync + Clone + PartialOrd> TakeAnyParallelRecursion<S> {
 
                                 schedules_mutex.push(evaluated_neighbor.clone());
 
-                                // if there is a recursion_width truncate schedules to the best width many
-                                if let Some(width) = self.recursion_width {
-                                    schedules_mutex.sort_unstable_by(|a, b| {
-                                        a.partial_cmp(b).expect("Could not compare solutions")
-                                    });
-                                    // schedules_mutex.dedup(); //remove dublicates
-                                    schedules_mutex.dedup_by(|s1, s2| {
-                                        s1.objective_value().cmp(s2.objective_value()).is_eq()
-                                    }); //remove dublicates according to objective_value
-                                    let width = width.min(schedules_mutex.len());
-                                    schedules_mutex.truncate(width);
-                                }
+                                schedules_mutex.sort_unstable_by(|a, b| {
+                                    a.partial_cmp(b).expect("Could not compare solutions")
+                                });
+                                schedules_mutex.dedup_by(|s1, s2| {
+                                    s1.objective_value().cmp(s2.objective_value()).is_eq()
+                                }); //remove dublicates according to objective_value
+                                let width =
+                                    (self.recursion_width as usize).min(schedules_mutex.len());
+                                schedules_mutex.truncate(width);
                             }
 
                             let found_receiver_mutex = found_receiver_mutex.lock().unwrap();

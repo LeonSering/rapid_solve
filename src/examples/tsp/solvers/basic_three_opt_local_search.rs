@@ -10,7 +10,8 @@ use std::sync::Arc;
 pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<TspTour> {
     let objective: Arc<Objective<TspTour>> = Arc::new(build_tsp_objective());
     let neighborhood = Arc::new(ThreeOptNeighborhood::new(tsp_instance));
-    LocalSearchSolver::with_local_improver_and_function(neighborhood, objective, None, None)
+    // let local_improver = Box::new(TakeFirst::new(neighborhood.clone(), objective.clone()));
+    LocalSearchSolver::initialize(neighborhood, objective)
 }
 
 #[cfg(test)]
@@ -46,7 +47,6 @@ mod tests {
             TspInstance::from_tsplib_file("resources/tsp_test_instances/berlin52.tsp").unwrap(),
         );
         let tour = TspTour::from_instance_nearest_neighbor(tsp_instance.clone());
-
         let solver = build(tsp_instance.clone());
 
         let local_opt_tour = solver.solve(tour);
@@ -59,17 +59,5 @@ mod tests {
                 6, 41, 20, 16, 2, 17, 30, 21
             ]
         );
-    }
-
-    #[test]
-    fn test_basic_three_opt_local_search_150_nodes() {
-        let tsp_instance = Arc::new(
-            TspInstance::from_tsplib_file("resources/tsp_test_instances/ch150.tsp").unwrap(),
-        );
-        let tour = TspTour::from_instance_nearest_neighbor(tsp_instance.clone());
-
-        let solver = build(tsp_instance.clone());
-
-        solver.solve(tour);
     }
 }

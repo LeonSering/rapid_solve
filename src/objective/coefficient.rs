@@ -4,6 +4,7 @@ use crate::time::Duration;
 
 use super::base_value::BaseValue;
 
+/// A coefficient of a Indicators. A coefficents is either an integer or a float.
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub enum Coefficient {
     Integer(i32),

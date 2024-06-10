@@ -5,10 +5,15 @@ use crate::objective::{Objective, ObjectiveValue};
 use std::sync::Arc;
 
 /// Find the first improving solution in the neighborhood of the given solution.
-/// As there is no parallelization this improver is fully deterministic.
+/// * Works the same as TakeFirst.
+/// * If no improvement is found, it goes into recursion.
+/// * Repeats recursion recursion_depth often.
+/// * Only the best recursion_width-many solution are considered for recursion.
+/// * The diversification for recursion is probably low.
+/// * As there is no parallelization this improver is fully deterministic.
 pub struct TakeFirstRecursion<S> {
     recursion_depth: u8,
-    recursion_width: Option<usize>, // number of schedule that are considered for recursion (the one with best value are taken)
+    recursion_width: u8,
     neighborhood: Arc<dyn Neighborhood<S>>,
     objective: Arc<Objective<S>>,
 }
@@ -27,7 +32,7 @@ impl<S: Clone + PartialOrd> LocalImprover<S> for TakeFirstRecursion<S> {
 impl<S: Clone + PartialOrd> TakeFirstRecursion<S> {
     pub fn new(
         recursion_depth: u8,
-        recursion_width: Option<usize>,
+        recursion_width: u8,
         neighborhood: Arc<dyn Neighborhood<S>>,
         objective: Arc<Objective<S>>,
     ) -> TakeFirstRecursion<S> {
@@ -62,15 +67,12 @@ impl<S: Clone + PartialOrd> TakeFirstRecursion<S> {
             .find(|neighbor| {
                 if remaining_recursion > 0 {
                     solutions_for_recursion.push(neighbor.clone());
-                    if let Some(width) = self.recursion_width {
-                        solutions_for_recursion.sort_unstable_by(|a, b| {
-                            a.partial_cmp(b).expect("Could not compare solutions")
-                        });
-                        solutions_for_recursion.dedup();
-                        // schedules_for_recursion.dedup_by(|s1,s2| s1.cmp_objective_values(s2).is_eq()); //remove dublicates
-                        let width = width.min(solutions_for_recursion.len());
-                        solutions_for_recursion.truncate(width);
-                    }
+                    solutions_for_recursion.sort_unstable_by(|a, b| {
+                        a.partial_cmp(b).expect("Could not compare solutions")
+                    });
+                    solutions_for_recursion.dedup();
+                    let width = (self.recursion_width as usize).min(solutions_for_recursion.len());
+                    solutions_for_recursion.truncate(width);
                 }
                 neighbor.objective_value() < objective_to_beat
             });
