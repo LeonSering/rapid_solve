@@ -87,17 +87,17 @@ impl Indicator<TestSolution> for SixthIndicator {
 #[test]
 fn test() {
     // ARRANGE
-    let level1 = Level::new(vec![
+    let level1 = LinearCombination::new(vec![
         (Coefficient::Integer(1), Box::new(FirstIndicator)),
         (Coefficient::Float(10.5), Box::new(SecondIndicator)),
     ]);
 
-    let level2 = Level::new(vec![
+    let level2 = LinearCombination::new(vec![
         (Coefficient::Integer(1), Box::new(ThirdIndicator)),
         (Coefficient::Float(-1.5), Box::new(FourthIndicator)),
     ]);
 
-    let level3 = Level::new(vec![
+    let level3 = LinearCombination::new(vec![
         (Coefficient::Float(0.5), Box::new(FifthIndicator)),
         (Coefficient::Integer(10), Box::new(SixthIndicator)),
     ]);

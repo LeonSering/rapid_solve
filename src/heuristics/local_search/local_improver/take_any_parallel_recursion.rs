@@ -14,7 +14,7 @@ use std::sync::Mutex;
 /// As soon as an improving soltion is found a terminus-signal is broadcast to all other solutions.
 /// If no improving solution is found the width-many solutions of each thread are take to recursion
 /// (dublicates are removed)
-/// Due to the parallel computation and find_any() this improver is the fastest but not
+/// Due to the parallel computation and find_any() this improver is often the fastest but not
 /// deterministic.
 pub struct TakeAnyParallelRecursion<S> {
     recursion_depth: u8,
@@ -23,14 +23,14 @@ pub struct TakeAnyParallelRecursion<S> {
     objective: Arc<Objective<S>>,
 }
 
-impl<S: Send + Sync + Clone + Ord> LocalImprover<S> for TakeAnyParallelRecursion<S> {
+impl<S: Send + Sync + Clone + PartialOrd> LocalImprover<S> for TakeAnyParallelRecursion<S> {
     fn improve(&self, solution: &EvaluatedSolution<S>) -> Option<EvaluatedSolution<S>> {
         let old_objective = solution.objective_value();
         self.improve_recursion(vec![solution.clone()], old_objective, self.recursion_depth)
     }
 }
 
-impl<S: Send + Sync + Clone + Ord> TakeAnyParallelRecursion<S> {
+impl<S: Send + Sync + Clone + PartialOrd> TakeAnyParallelRecursion<S> {
     pub fn new(
         recursion_depth: u8,
         recursion_width: Option<usize>,
@@ -84,7 +84,9 @@ impl<S: Send + Sync + Clone + Ord> TakeAnyParallelRecursion<S> {
 
                                 // if there is a recursion_width truncate schedules to the best width many
                                 if let Some(width) = self.recursion_width {
-                                    schedules_mutex.sort();
+                                    schedules_mutex.sort_unstable_by(|a, b| {
+                                        a.partial_cmp(b).expect("Could not compare solutions")
+                                    });
                                     // schedules_mutex.dedup(); //remove dublicates
                                     schedules_mutex.dedup_by(|s1, s2| {
                                         s1.objective_value().cmp(s2.objective_value()).is_eq()
@@ -144,8 +146,14 @@ impl<S: Send + Sync + Clone + Ord> TakeAnyParallelRecursion<S> {
                 let mut schedules_for_recursion: Vec<EvaluatedSolution<S>> =
                     solution_collection.into_iter().flatten().collect();
 
-                schedules_for_recursion.sort();
-                schedules_for_recursion.dedup_by(|s1, s2| s1.cmp(&s2).is_eq());
+                schedules_for_recursion.sort_unstable_by(|a, b| {
+                    a.partial_cmp(b).expect("Could not compare solutions")
+                });
+                schedules_for_recursion.dedup_by(|s1, s2| {
+                    s1.partial_cmp(&s2)
+                        .expect("Could not compare solutions")
+                        .is_eq()
+                });
 
                 self.improve_recursion(
                     schedules_for_recursion,

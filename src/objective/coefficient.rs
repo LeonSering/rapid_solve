@@ -19,6 +19,18 @@ impl Coefficient {
     }
 }
 
+impl From<i32> for Coefficient {
+    fn from(i: i32) -> Self {
+        Coefficient::Integer(i)
+    }
+}
+
+impl From<f32> for Coefficient {
+    fn from(f: f32) -> Self {
+        Coefficient::Float(f)
+    }
+}
+
 impl Mul<BaseValue> for Coefficient {
     type Output = BaseValue;
 

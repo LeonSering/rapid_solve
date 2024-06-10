@@ -2,7 +2,7 @@ pub mod base_value;
 pub mod coefficient;
 pub mod evaluated_solution;
 pub mod indicator;
-pub mod level;
+pub mod linear_combination;
 pub mod objective_value;
 #[cfg(test)]
 mod tests;
@@ -11,20 +11,20 @@ pub use base_value::BaseValue;
 pub use coefficient::Coefficient;
 pub use evaluated_solution::EvaluatedSolution;
 pub use indicator::Indicator;
-pub use level::Level;
+pub use linear_combination::LinearCombination;
 pub use objective_value::ObjectiveValue;
 
-/// Defines the values of a schedule that form the objective.
+/// Defines the values of a solution that form the objective.
 /// It is constant throughout optimization.
-/// It is a hierarchical objective, i.e., it consists of several levels.
-/// Each level consists of a linear combination of indicators.
+/// It is a hierarchical objective, i.e., it consists of several levels of linear combinations
+/// of indicators.
 ///
 /// The objective is to be minimized with the most important level being the first entry of the
 /// vector.
 ///
 /// S: the solution type for which the objective is defined.
 pub struct Objective<S> {
-    hierarchy_levels: Vec<Level<S>>,
+    hierarchy_levels: Vec<LinearCombination<S>>,
 }
 
 // methods
@@ -101,7 +101,18 @@ impl<S> Objective<S> {
 
 // static
 impl<S> Objective<S> {
-    pub fn new(hierarchy_levels: Vec<Level<S>>) -> Objective<S> {
+    pub fn new(hierarchy_levels: Vec<LinearCombination<S>>) -> Objective<S> {
         Objective { hierarchy_levels }
+    }
+
+    pub fn new_single_level(linear_combination: LinearCombination<S>) -> Objective<S> {
+        Objective::new(vec![linear_combination])
+    }
+
+    pub fn new_single_indicator(indicator: Box<dyn Indicator<S>>) -> Objective<S> {
+        Objective::new_single_level(LinearCombination::new(vec![(
+            Coefficient::from(1),
+            indicator,
+        )]))
     }
 }

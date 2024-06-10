@@ -1,16 +1,14 @@
-/////////////////////// LEVEL ///////////////////////
-
 use std::fmt;
 
 use super::{base_value::BaseValue, coefficient::Coefficient, indicator::Indicator};
 
-/// A level of the objective hierarchy.
-pub struct Level<S> {
+/// A linear combination of indicators.
+pub struct LinearCombination<S> {
     // valueType must be multiplyable with Coefficient
     summands: Vec<(Coefficient, Box<dyn Indicator<S>>)>,
 }
 
-impl<S> Level<S> {
+impl<S> LinearCombination<S> {
     pub fn evaluate(&self, solution: &S) -> BaseValue {
         self.summands
             .iter()
@@ -18,12 +16,12 @@ impl<S> Level<S> {
             .sum()
     }
 
-    pub fn new(summands: Vec<(Coefficient, Box<dyn Indicator<S>>)>) -> Level<S> {
-        Level { summands }
+    pub fn new(summands: Vec<(Coefficient, Box<dyn Indicator<S>>)>) -> LinearCombination<S> {
+        LinearCombination { summands }
     }
 }
 
-impl<S> fmt::Display for Level<S> {
+impl<S> fmt::Display for LinearCombination<S> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,

@@ -4,6 +4,7 @@ use super::{tsp_instance::TspInstance, Distance, NodeIdx};
 
 /// Represents a tour of a TSP instance.
 /// Contain all indices between 0 and n-1.
+#[derive(Clone, PartialOrd, PartialEq)]
 pub struct TspTour {
     nodes: Vec<NodeIdx>,
     total_distance: Distance,
@@ -11,7 +12,17 @@ pub struct TspTour {
 }
 
 impl TspTour {
-    pub fn new(
+    pub fn new(nodes: Vec<NodeIdx>, tsp_instance: Arc<TspInstance>) -> TspTour {
+        let total_distance = nodes
+            .iter()
+            .zip(nodes.iter().cycle().skip(1))
+            .map(|(&i, &j)| tsp_instance.get_distance(i, j))
+            .sum();
+
+        TspTour::new_pre_computed(nodes, total_distance, tsp_instance)
+    }
+
+    fn new_pre_computed(
         nodes: Vec<NodeIdx>,
         total_distance: Distance,
         tsp_instance: Arc<TspInstance>,
@@ -57,7 +68,7 @@ impl TspTour {
         // Return to node 0
         total_distance += tsp_instance.get_distance(current_node, 0);
 
-        TspTour::new(nodes, total_distance, tsp_instance)
+        TspTour::new_pre_computed(nodes, total_distance, tsp_instance)
     }
 
     pub fn get_nodes(&self) -> &Vec<NodeIdx> {
@@ -108,7 +119,7 @@ impl TspTour {
         new_nodes.extend_from_slice(&self.nodes[i + 1..j + 1]);
         new_nodes.extend_from_slice(&self.nodes[k + 1..]);
 
-        TspTour::new(new_nodes, new_distance, self.tsp_instance.clone())
+        TspTour::new_pre_computed(new_nodes, new_distance, self.tsp_instance.clone())
     }
 }
 
@@ -117,7 +128,24 @@ mod tests {
     use super::*;
 
     #[test]
-    fn tsp_tour_test() {
+    fn test_new_tsp_tour() {
+        let tsp_instance = TspInstance::new(
+            4,
+            vec![
+                vec![0.0, 10.0, 15.0, 20.0],
+                vec![10.0, 0.0, 35.0, 25.0],
+                vec![15.0, 35.0, 0.0, 30.0],
+                vec![20.0, 25.0, 30.0, 0.0],
+            ],
+        );
+
+        let tour = TspTour::new(vec![0, 1, 2, 3], Arc::new(tsp_instance));
+        assert_eq!(tour.get_nodes(), &vec![0, 1, 2, 3]);
+        assert_eq!(tour.get_total_distance(), 10.0 + 35.0 + 30.0 + 20.0);
+    }
+
+    #[test]
+    fn test_new_tsp_tour_nearest_neighbor() {
         let tsp_instance = TspInstance::new(
             4,
             vec![
@@ -134,7 +162,7 @@ mod tests {
     }
 
     #[test]
-    fn three_opt_swap_test() {
+    fn test_three_opt_swap() {
         let tsp_instance = TspInstance::new(
             4,
             vec![

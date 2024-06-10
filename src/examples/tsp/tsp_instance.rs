@@ -9,6 +9,7 @@ use super::{Distance, NodeIdx};
 type Coordinate = f64;
 type NodeCount = usize;
 
+#[derive(PartialOrd, PartialEq)]
 pub struct TspInstance {
     number_of_nodes: NodeCount,
     distances: Vec<Vec<Distance>>,
