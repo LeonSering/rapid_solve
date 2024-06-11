@@ -1,9 +1,9 @@
+//! This module contains the [`TspTour`], i.e., a permutation of all nodes of the [`TspInstance`].
 use std::sync::Arc;
 
 use super::{tsp_instance::TspInstance, Distance, NodeIdx};
 
-/// Represents a tour of a TSP instance.
-/// Contain all indices between 0 and n-1.
+/// Represents a tour of a [`TspInstance`]. Contain all indices between 0 and n-1.
 #[derive(Clone, PartialOrd, PartialEq)]
 pub struct TspTour {
     nodes: Vec<NodeIdx>,
@@ -12,6 +12,7 @@ pub struct TspTour {
 }
 
 impl TspTour {
+    /// Creates a new [`TspTour`] with the given nodes and computes the total distance.
     pub fn new(nodes: Vec<NodeIdx>, tsp_instance: Arc<TspInstance>) -> TspTour {
         let total_distance = nodes
             .iter()
@@ -34,6 +35,7 @@ impl TspTour {
         }
     }
 
+    /// Creates a new [`TspTour`] using the [nearest neighbor heuristic](https://en.wikipedia.org/wiki/Nearest_neighbour_algorithm).
     pub fn from_instance_nearest_neighbor(tsp_instance: Arc<TspInstance>) -> TspTour {
         let mut nodes = Vec::with_capacity(tsp_instance.get_number_of_nodes());
         let mut visited = vec![false; tsp_instance.get_number_of_nodes()];
@@ -71,19 +73,23 @@ impl TspTour {
         TspTour::new_pre_computed(nodes, total_distance, tsp_instance)
     }
 
+    /// Returns the `nodes` of the tour.
     pub fn get_nodes(&self) -> &Vec<NodeIdx> {
         &self.nodes
     }
 
+    /// Returns the `total_distance` of the tour.
     pub fn get_total_distance(&self) -> Distance {
         self.total_distance
     }
 
-    /// Performs a single three-opt swap on the tour.
-    /// Assumes that 0 <= i < j < k < n.
-    /// New nodes consists of the nodes with the following index in the current tour
-    /// from 0 to i, then the nodes from j+1 to k, then the nodes
-    /// from i+1 to j, and finally the nodes from k+1 to n-1.
+    /// Performs a single [3-opt swap](https://en.wikipedia.org/wiki/3-opt) on the tour.
+    /// * Assumes that 0 <= i < j < k < n.
+    /// * New [`TspTour`] consists of the nodes with the following index in the current tour
+    ///     - first nodes with index 0 to i
+    ///     - then the nodes with index from j+1 to k
+    ///     - then the nodes with index from i+1 to j
+    ///     - finally the nodes with index from k+1 to n-1.
     pub fn three_opt_swap(&self, i: usize, j: usize, k: usize) -> TspTour {
         let mut new_distance = self.total_distance;
         let n = self.nodes.len();
@@ -129,15 +135,12 @@ mod tests {
 
     #[test]
     fn test_new_tsp_tour() {
-        let tsp_instance = TspInstance::new(
-            4,
-            vec![
-                vec![0.0, 10.0, 15.0, 20.0],
-                vec![10.0, 0.0, 35.0, 25.0],
-                vec![15.0, 35.0, 0.0, 30.0],
-                vec![20.0, 25.0, 30.0, 0.0],
-            ],
-        );
+        let tsp_instance = TspInstance::new(vec![
+            vec![0.0, 10.0, 15.0, 20.0],
+            vec![10.0, 0.0, 35.0, 25.0],
+            vec![15.0, 35.0, 0.0, 30.0],
+            vec![20.0, 25.0, 30.0, 0.0],
+        ]);
 
         let tour = TspTour::new(vec![0, 1, 2, 3], Arc::new(tsp_instance));
         assert_eq!(tour.get_nodes(), &vec![0, 1, 2, 3]);
@@ -146,15 +149,12 @@ mod tests {
 
     #[test]
     fn test_new_tsp_tour_nearest_neighbor() {
-        let tsp_instance = TspInstance::new(
-            4,
-            vec![
-                vec![0.0, 10.0, 15.0, 20.0],
-                vec![10.0, 0.0, 35.0, 25.0],
-                vec![15.0, 35.0, 0.0, 30.0],
-                vec![20.0, 25.0, 30.0, 0.0],
-            ],
-        );
+        let tsp_instance = TspInstance::new(vec![
+            vec![0.0, 10.0, 15.0, 20.0],
+            vec![10.0, 0.0, 35.0, 25.0],
+            vec![15.0, 35.0, 0.0, 30.0],
+            vec![20.0, 25.0, 30.0, 0.0],
+        ]);
 
         let tour = TspTour::from_instance_nearest_neighbor(Arc::new(tsp_instance));
         assert_eq!(tour.get_nodes(), &vec![0, 1, 3, 2]);
@@ -163,15 +163,12 @@ mod tests {
 
     #[test]
     fn test_three_opt_swap() {
-        let tsp_instance = TspInstance::new(
-            4,
-            vec![
-                vec![0.0, 10.0, 15.0, 20.0],
-                vec![10.0, 0.0, 35.0, 25.0],
-                vec![15.0, 35.0, 0.0, 30.0],
-                vec![20.0, 25.0, 30.0, 0.0],
-            ],
-        );
+        let tsp_instance = TspInstance::new(vec![
+            vec![0.0, 10.0, 15.0, 20.0],
+            vec![10.0, 0.0, 35.0, 25.0],
+            vec![15.0, 35.0, 0.0, 30.0],
+            vec![20.0, 25.0, 30.0, 0.0],
+        ]);
 
         let tour = TspTour::from_instance_nearest_neighbor(Arc::new(tsp_instance));
         let new_tour = tour.three_opt_swap(1, 2, 3);

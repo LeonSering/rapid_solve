@@ -12,6 +12,7 @@ pub enum Coefficient {
 }
 
 impl Coefficient {
+    /// Returns true if the coefficient is one.
     pub fn is_one(&self) -> bool {
         match self {
             Coefficient::Integer(i) => *i == 1,

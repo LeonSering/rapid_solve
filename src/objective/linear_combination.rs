@@ -9,6 +9,7 @@ pub struct LinearCombination<S> {
 }
 
 impl<S> LinearCombination<S> {
+    /// Evaluate the linear combination for a given solution.
     pub fn evaluate(&self, solution: &S) -> BaseValue {
         self.summands
             .iter()
@@ -16,6 +17,7 @@ impl<S> LinearCombination<S> {
             .sum()
     }
 
+    /// Creates a new linear combination from a list of summands.
     pub fn new(summands: Vec<(Coefficient, Box<dyn Indicator<S>>)>) -> LinearCombination<S> {
         LinearCombination { summands }
     }

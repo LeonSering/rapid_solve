@@ -1,11 +1,13 @@
+//! In stead of looking at all neighbors and pick the best one, we take the first improving
+//! neighbor. As the neighborhood is searched in parallel this solver is not deterministic.
 use super::super::{objective::build_tsp_objective, tsp_instance::TspInstance, tsp_tour::TspTour};
 use super::neighborhood::ThreeOptNeighborhood;
 use crate::heuristics::local_search::local_improver::TakeFirstRecursion;
 use crate::{heuristics::local_search::LocalSearchSolver, objective::Objective};
 use std::sync::Arc;
 
-/// In stead of looking at all neighbors and pick the best one, we take the first improving
-/// neighbor. As the neighborhood is searched in parallel this solver is not deterministic.
+/// Builds a [`LocalSearchSolver`] with [`TakeFirstRecursion`] as
+/// [`LocalImprover`](crate::heuristics::local_search::local_improver::LocalImprover).
 pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<TspTour> {
     let objective: Arc<Objective<TspTour>> = Arc::new(build_tsp_objective());
     let neighborhood = Arc::new(ThreeOptNeighborhood::new(tsp_instance));
@@ -31,15 +33,12 @@ mod tests {
 
     #[test]
     fn test_take_first_three_opt_local_search() {
-        let tsp_instance = Arc::new(TspInstance::new(
-            4,
-            vec![
-                vec![0.0, 10.0, 15.0, 20.0],
-                vec![10.0, 0.0, 35.0, 25.0],
-                vec![15.0, 35.0, 0.0, 30.0],
-                vec![20.0, 25.0, 30.0, 0.0],
-            ],
-        ));
+        let tsp_instance = Arc::new(TspInstance::new(vec![
+            vec![0.0, 10.0, 15.0, 20.0],
+            vec![10.0, 0.0, 35.0, 25.0],
+            vec![15.0, 35.0, 0.0, 30.0],
+            vec![20.0, 25.0, 30.0, 0.0],
+        ]));
 
         let tour = TspTour::new(vec![0, 1, 2, 3], tsp_instance.clone());
 

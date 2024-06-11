@@ -13,11 +13,13 @@ pub struct ObjectiveValue {
 }
 
 impl ObjectiveValue {
-    pub(super) fn new(objective_vector: Vec<BaseValue>) -> ObjectiveValue {
+    /// Creates a new objective value. This is usally done by the [evaluate](crate::objective::Objective::evaluate) method of an Objective.
+    pub fn new(objective_vector: Vec<BaseValue>) -> ObjectiveValue {
         ObjectiveValue { objective_vector }
     }
 
-    pub(super) fn iter(&self) -> Iter<BaseValue> {
+    /// Returns the entries of the objective vector.
+    pub fn iter(&self) -> Iter<BaseValue> {
         self.objective_vector.iter()
     }
 }

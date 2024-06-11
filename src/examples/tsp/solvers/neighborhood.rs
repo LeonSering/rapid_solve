@@ -1,3 +1,5 @@
+//! The [`Neighborhood`] defines for every solution (in this case a tour) an iterator over all neighbors.
+//! The [`ThreeOptNeighborhood`] generates all tours that can be obtained by applying a 3-opt move.
 use std::sync::Arc;
 
 use crate::{
@@ -5,11 +7,14 @@ use crate::{
     heuristics::local_search::Neighborhood,
 };
 
+/// Given a [`TspTour`], this [`Neighborhood`] generates all tours that can be obtained by applying a
+/// 3-opt move (deleting three arcs and reconnecting the tour by adding three new arcs).
 pub struct ThreeOptNeighborhood {
     tsp_instance: Arc<TspInstance>,
 }
 
 impl ThreeOptNeighborhood {
+    /// Creates a new [`ThreeOptNeighborhood`] for the given [`TspInstance`].
     pub fn new(tsp_instance: Arc<TspInstance>) -> Self {
         Self { tsp_instance }
     }

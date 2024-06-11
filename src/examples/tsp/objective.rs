@@ -1,3 +1,4 @@
+//! This module contains the [`Objective`] for the TSP problem.
 use crate::objective::{BaseValue, Indicator, Objective};
 
 use super::tsp_tour::TspTour;
@@ -14,7 +15,8 @@ impl Indicator<TspTour> for DistanceIndicator {
     }
 }
 
+/// Builds the [`Objective`] for the TSP, which consists of a single [`Indicator`] for the total
+/// distance of the tour.
 pub fn build_tsp_objective() -> Objective<TspTour> {
-    // In this case, we only have one level with one indicator, which is the total distance of the tour.
     Objective::new_single_indicator(Box::new(DistanceIndicator))
 }

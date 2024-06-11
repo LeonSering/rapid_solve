@@ -1,12 +1,15 @@
+//! For a basic [`LocalSearchSolver`], we need to define an [`Objective`] and for every tour the
+//! [`Neighborhood`][`crate::heuristics::local_search::neighborhood::Neighborhood`].
+//! This solver searches in each step the whole neighborhood of the current [`TspTour`] (in parallel) and
+//! picks the best neighbor.
 use super::super::{objective::build_tsp_objective, tsp_instance::TspInstance, tsp_tour::TspTour};
 use super::neighborhood::ThreeOptNeighborhood;
 use crate::{heuristics::local_search::LocalSearchSolver, objective::Objective};
 use std::sync::Arc;
 
-/// For a basic local search solver, we need to define an objective and for every tour the
-/// neighborhood.
-/// This solver searches in each step the whole neighborhood of the current tour (in parallel) and
-/// picks the best neighbor.
+/// Builds a local search solver with the default
+/// [`LocalImprover`](crate::heuristics::local_search::local_improver::LocalImprover)
+/// [`Minimizer`](crate::heuristics::local_search::local_improver::minimizer::Minimizer).
 pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<TspTour> {
     let objective: Arc<Objective<TspTour>> = Arc::new(build_tsp_objective());
     let neighborhood = Arc::new(ThreeOptNeighborhood::new(tsp_instance));
@@ -22,15 +25,12 @@ mod tests {
 
     #[test]
     fn test_basic_three_opt_local_search() {
-        let tsp_instance = Arc::new(TspInstance::new(
-            4,
-            vec![
-                vec![0.0, 10.0, 15.0, 20.0],
-                vec![10.0, 0.0, 35.0, 25.0],
-                vec![15.0, 35.0, 0.0, 30.0],
-                vec![20.0, 25.0, 30.0, 0.0],
-            ],
-        ));
+        let tsp_instance = Arc::new(TspInstance::new(vec![
+            vec![0.0, 10.0, 15.0, 20.0],
+            vec![10.0, 0.0, 35.0, 25.0],
+            vec![15.0, 35.0, 0.0, 30.0],
+            vec![20.0, 25.0, 30.0, 0.0],
+        ]));
 
         let tour = TspTour::new(vec![0, 1, 2, 3], tsp_instance.clone());
 

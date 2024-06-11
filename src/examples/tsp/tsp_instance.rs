@@ -1,3 +1,4 @@
+//! This module contains the [`TspInstance`] which is given by a distance matrix.
 use std::{
     error::Error,
     fs::File,
@@ -9,18 +10,22 @@ use super::{Distance, NodeIdx};
 type Coordinate = f64;
 type NodeCount = usize;
 
+/// A [`TspInstance`] consists of a (potentially asymmetric) distance matrix and can be loading from a
+/// [TSPLIB file](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/).
 #[derive(PartialOrd, PartialEq)]
 pub struct TspInstance {
     number_of_nodes: NodeCount,
-    distances: Vec<Vec<Distance>>,
+    distance_matrix: Vec<Vec<Distance>>,
 }
 
 // methods
 impl TspInstance {
+    /// Returns the distance between two nodes.
     pub fn get_distance(&self, from: NodeIdx, to: NodeIdx) -> Distance {
-        self.distances[from][to]
+        self.distance_matrix[from][to]
     }
 
+    /// Returns the number of nodes in the instance.
     pub fn get_number_of_nodes(&self) -> NodeCount {
         self.number_of_nodes
     }
@@ -28,13 +33,21 @@ impl TspInstance {
 
 // static
 impl TspInstance {
-    pub fn new(number_of_nodes: NodeCount, distances: Vec<Vec<Distance>>) -> TspInstance {
+    /// Creates a new [`TspInstance`] with the given `distance_matrix`.
+    pub fn new(distance_matrix: Vec<Vec<Distance>>) -> TspInstance {
+        let number_of_nodes = distance_matrix.len();
+        for row in distance_matrix.iter() {
+            assert_eq!(row.len(), number_of_nodes);
+        }
         TspInstance {
             number_of_nodes,
-            distances,
+            distance_matrix,
         }
     }
 
+    /// Loads a [`TspInstance`] from a [TSPLIB
+    /// file](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/). Support symmetric and
+    /// asymmetric instances.
     pub fn from_tsplib_file(file_path: &str) -> Result<TspInstance, Box<dyn Error>> {
         let file = File::open(file_path)?;
         let reader = BufReader::new(file);
@@ -90,7 +103,7 @@ impl TspInstance {
                 distances[i][j] = ((x1 - x2).powi(2) + (y1 - y2).powi(2)).sqrt();
             }
         }
-        Ok(TspInstance::new(number_of_nodes, distances))
+        Ok(TspInstance::new(distances))
     }
 
     fn read_atsp_lines(
@@ -122,7 +135,7 @@ impl TspInstance {
             distance_row.copy_from_slice(&values);
         }
 
-        Ok(TspInstance::new(number_of_nodes, distances))
+        Ok(TspInstance::new(distances))
     }
 }
 
