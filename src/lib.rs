@@ -22,9 +22,9 @@
 //!
 //! # How to use this library (step-by-step example)
 //! Suppose you have given a combinatorial optimization problem and defined a solution type.
-//! To run a local search solver you need to do the follwoing four steps:
+//! To run a local search solver you need to do the following four steps:
 //! 1. Define the [`Objective`][objective::Objective] for your problem by defining
-//!    [`Indicators`][objective::Indicator] and build a hierachical objective of
+//!    [`Indicators`][objective::Indicator] and build a hierarchical objective of
 //!    [`LinearCombinations`][objective::LinearCombination] of these indicators.
 //! 2. Define modifications for your solution type. The solution type should not be mutable,
 //!    instead a modified clone should be returned.
@@ -32,7 +32,7 @@
 //! 4. Initialize the [`LocalSearchSolver`][heuristics::local_search::LocalSearchSolver]
 //! and run it.
 //!
-//! We demonstate these steps on a simple (but totally artificial) example, where the solution type
+//! We demonstrate these steps on a simple (but totally artificial) example, where the solution type
 //! consists of a fixed-size vector of integers.
 //!
 //! ```rust
@@ -45,7 +45,7 @@
 //! the sum of squared differences between consecutive elements (cyclic) is minimized.
 //!
 //! Hence, we define two [`Indicators`][objective::Indicator], namely `PermutationViolation` and
-//! `SquaredDifference`, and build a hierachical
+//! `SquaredDifference`, and build a hierarchical
 //! objective where `PermutationViolation` is minimized first and only for tie-breaks
 //! `SquaredDifference` is considered.
 //! ```rust
@@ -245,7 +245,7 @@
 //! // one global optimum is [0, 2, 4, 6, 8, 9, 7, 5, 3, 1] with a squared differences of 34.
 //! ```
 //!
-//! For a more less artificial demonstation, we refer to the [tsp-example][examples::tsp].
+//! For a more less artificial demonstration, we refer to the [tsp-example][examples::tsp].
 //!
 pub mod examples;
 pub mod heuristics;
