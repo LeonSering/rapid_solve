@@ -1,4 +1,4 @@
-//! The module contains the [`BaseValue`] enum, which represents a single scalar value.
+//! Contains the [`BaseValue`] enum, which represents a single scalar value.
 use std::{
     cmp::Ordering,
     fmt,
@@ -10,7 +10,7 @@ use crate::time::Duration;
 
 const TOLERANCE: f64 = 0.0001;
 
-/// A single value of an [`Indicator`][crate::objective::indicator::Indicator] or [`LinearCombination`][crate::objective::linear_combination::LinearCombination]. E.g., count of things, durations, costs.
+/// A single value of an [`Indicator`][super::indicator::Indicator] or [`LinearCombination`][super::linear_combination::LinearCombination]. E.g., count of things, durations, costs.
 /// * Supports integers (i64), floats (f64), durations (from the RapidTime crate).
 /// * `Maximum` is larger (worse) than all other values.
 /// * `Zero` is the neutral element for addition.

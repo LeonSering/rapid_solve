@@ -1,10 +1,14 @@
+//! Contains the [`Coefficient`] enum, which is used by
+//! [`LinearCombinations`][`super::LinearCombination`].
+
 use std::{fmt, ops::Mul};
 
 use crate::time::Duration;
 
 use super::base_value::BaseValue;
 
-/// A coefficient of a Indicators. A coefficents is either an integer or a float.
+/// A coefficient of a [`Indicator`][`super::Indicator`]. A coefficents is either an
+/// [`Integer`][`Coefficient::Integer`] or a [`Float`][`Coefficient::Float`].
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub enum Coefficient {
     Integer(i32),
@@ -12,7 +16,7 @@ pub enum Coefficient {
 }
 
 impl Coefficient {
-    /// Returns true if the coefficient is one.
+    /// Returns `True` if the coefficient is one.
     pub fn is_one(&self) -> bool {
         match self {
             Coefficient::Integer(i) => *i == 1,

@@ -1,14 +1,16 @@
+//! [`TakeFirstRecursion`] takes the first improving solution according to the
+//! neighborhood iterator. If no improvement is found, it takes the best neighbors into recursion.
 use super::super::Neighborhood;
 use super::LocalImprover;
 use crate::objective::EvaluatedSolution;
 use crate::objective::{Objective, ObjectiveValue};
 use std::sync::Arc;
 
-/// Find the first improving solution in the neighborhood of the given solution.
-/// * Works the same as TakeFirst.
-/// * If no improvement is found, it goes into recursion.
-/// * Repeats recursion recursion_depth often.
-/// * Only the best recursion_width-many solution are considered for recursion.
+/// Takes the first improving solution according to the neighborhood iterator.
+/// If no improvement is found, it takes the best neighbors into recursion.
+/// * Works the same as [`TakeFirst`][super::take_first::TakeFirst] but with recursion.
+/// * Repeats recursion `recursion_depth` often.
+/// * Only the best `recursion_width`-many solution are considered for recursion.
 /// * The diversification for recursion is probably low.
 /// * As there is no parallelization this improver is fully deterministic.
 pub struct TakeFirstRecursion<S> {
@@ -16,6 +18,26 @@ pub struct TakeFirstRecursion<S> {
     recursion_width: u8,
     neighborhood: Arc<dyn Neighborhood<S>>,
     objective: Arc<Objective<S>>,
+}
+
+impl<S> TakeFirstRecursion<S> {
+    /// Creates a new instance of [`TakeFirstRecursion`]. In addition to the [`Neighborhood`]
+    /// and the [`Objective`] the following parameters are needed:
+    /// * `recursion_depth` is the number of recursions to be done.
+    /// * `recursion_width` is the number of solutions to be taken to recursion.
+    pub fn new(
+        recursion_depth: u8,
+        recursion_width: u8,
+        neighborhood: Arc<dyn Neighborhood<S>>,
+        objective: Arc<Objective<S>>,
+    ) -> TakeFirstRecursion<S> {
+        TakeFirstRecursion {
+            recursion_depth,
+            recursion_width,
+            neighborhood,
+            objective,
+        }
+    }
 }
 
 impl<S: Clone + PartialOrd> LocalImprover<S> for TakeFirstRecursion<S> {
@@ -30,20 +52,6 @@ impl<S: Clone + PartialOrd> LocalImprover<S> for TakeFirstRecursion<S> {
 }
 
 impl<S: Clone + PartialOrd> TakeFirstRecursion<S> {
-    pub fn new(
-        recursion_depth: u8,
-        recursion_width: u8,
-        neighborhood: Arc<dyn Neighborhood<S>>,
-        objective: Arc<Objective<S>>,
-    ) -> TakeFirstRecursion<S> {
-        TakeFirstRecursion {
-            recursion_depth,
-            recursion_width,
-            neighborhood,
-            objective,
-        }
-    }
-
     /// Returns the first improving solution in the neighborhood of the given solutions.
     /// If no improvement is found, None is returned.
     fn improve_recursion(

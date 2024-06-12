@@ -1,3 +1,8 @@
+//! This module contains the local search solver and its components.
+//! The [local search heuristic](https://en.wikipedia.org/wiki/Local_search_(optimization))
+//! starts with an initial solution and iteratively improves it by
+//! exploring the neighborhood of the current solution.
+
 pub mod local_improver;
 pub mod neighborhood;
 mod search_result;
@@ -40,12 +45,12 @@ type FunctionBetweenSteps<S> = Box<
     ),
 >;
 
-/// A local search solver that uses a neighborhood and an objective to find a local minimum.
-/// * There are a variety of local improvers that can be used with this solver.
-/// * The function_between_steps is executed after each improvement step.
-/// * The deafult local improver (if None) is Minimizer.
-/// * The default function_between_steps (if None) is printing the iteration number, the objective
-/// (in comparison the the previous objective) and the time elapsed since the start.
+/// A local search solver that uses a [`Neighborhood`] and an [`Objective`] to find a local minimum.
+/// * There are a variety of [`LocalImprovers`][`LocalImprover`] that can be used with this solver.
+/// * The `function_between_steps` is executed after each improvement step.
+/// * The deafult [`LocalImprover`] (if `None`) is [`Minimizer`].
+/// * The default `function_between_steps` (if `None`) is printing the iteration number, the objective value
+/// (in comparison the the previous objective value) and the time elapsed since the start.
 pub struct LocalSearchSolver<S> {
     neighborhood: Arc<dyn Neighborhood<S>>,
     objective: Arc<Objective<S>>,
@@ -54,9 +59,9 @@ pub struct LocalSearchSolver<S> {
 }
 
 impl<S> LocalSearchSolver<S> {
-    /// Creates a new local search solver with the given neighborhood and objective.
-    /// Uses the default local improver (Minimizer) and the default function_between_steps (print
-    /// iteration number, objective, time elapsed).
+    /// Creates a new [`LocalSearchSolver`] with the given [`Neighborhood`] and [`Objective`].
+    /// Uses the default [`LocalImprover`] ([`Minimizer`]) and the default `function_between_steps` (print
+    /// iteration number, objective value, time elapsed).
     pub fn initialize(
         neighborhood: Arc<dyn Neighborhood<S>>,
         objective: Arc<Objective<S>>,
@@ -69,9 +74,9 @@ impl<S> LocalSearchSolver<S> {
         }
     }
 
-    /// Creates a new local search solver with the given neighborhood and objective.
-    /// Uses the given local improver (None = Minimizer) and the default function_between_steps (None = print
-    /// iteration number, objective, time elapsed).
+    /// Creates a new [`LocalSearchSolver`] with the given [`Neighborhood`] and [`Objective`].
+    /// Uses the given [`LocalImprover`] (`None` = [`Minimizer`]) and the default `function_between_steps` (`None` = print
+    /// iteration number, objective value, time elapsed).
     pub fn with_local_improver_and_function(
         neighborhood: Arc<dyn Neighborhood<S>>,
         objective: Arc<Objective<S>>,
@@ -88,6 +93,7 @@ impl<S> LocalSearchSolver<S> {
 }
 
 impl<S> LocalSearchSolver<S> {
+    /// Finds a local minimum by iteratively improving the given initial solution.
     pub fn solve(&self, initial_solution: S) -> EvaluatedSolution<S> {
         let start_time = stdtime::Instant::now();
         let init_solution = self.objective.evaluate(initial_solution);

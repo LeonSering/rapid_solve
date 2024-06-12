@@ -1,6 +1,10 @@
 //! In this module, the hierarchical [`Objective`] of an optimization problem is defined.
-//! With an [`Objective`] instance, each solution instance can be evaluated.
-//! This equips the solution with an [`ObjectiveValue`] by wrapping it into an [`EvaluatedSolution`].
+//! * The objective is constant throughout the optimization and consists of several levels of
+//! [`LinearCombinations`][`LinearCombination`] of [`Indicators`][`Indicator`] (each multiplied
+//! with a [`Coefficient`]).
+//! * With an [`Objective`] instance, each solution instance can be evaluated, which equips the
+//! solution with an [`ObjectiveValue`] (a vector of [`BaseValues`][`BaseValue`], one per level) by wrapping
+//! it into an [`EvaluatedSolution`].
 
 pub mod base_value;
 pub mod coefficient;
@@ -25,7 +29,7 @@ pub use objective_value::ObjectiveValue;
 /// [`LinearCombinations`][`LinearCombination`] of [`Indicators`][`Indicator`].
 /// The objective is to be minimized with the most important level being the first entry of the
 /// vector.
-/// A solution is evaluated by using the [`evaluate`](#method.evaluate) method, which consumes the solution, computes its
+/// A solution is evaluated by using the [`evaluate`][`Objective::evaluate`] method, which consumes the solution, computes its
 /// [`ObjectiveValue`] and returns both as [`EvaluatedSolution`].
 ///
 /// `S`: the solution type for which the objective is defined.
@@ -84,7 +88,7 @@ impl<S> Objective<S> {
         }
     }
 
-    /// Converts an [`ObjectiveValue`] to a JSON object (using [`serde_json`](https://docs.rs/serde_json/latest/serde_json/index.html)).
+    /// Converts an [`ObjectiveValue`] to a JSON object (using [`serde_json`]).
     pub fn objective_value_to_json(&self, objective_value: &ObjectiveValue) -> serde_json::Value {
         let mut json_object = serde_json::json!({});
         for (level, base_value) in self.hierarchy_levels.iter().zip(objective_value.iter()) {

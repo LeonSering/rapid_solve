@@ -1,3 +1,6 @@
+//! This module contains several [`LocalImprover`] implementations, which define the strategy to
+//! explore the neighborhood of a solution in each iteration of the
+//! [`LocalSearchSolver`][super::LocalSearchSolver].
 pub mod minimizer;
 pub mod parallel_minimizer;
 pub mod take_any_parallel_recursion;
@@ -9,11 +12,19 @@ pub use take_any_parallel_recursion::TakeAnyParallelRecursion;
 pub use take_first_recursion::TakeFirstRecursion;
 
 use crate::objective::EvaluatedSolution;
-/// Determines for a given solution the best neighbor that has an improving objective function.
-/// A solver is equipped with only one LocalImprover. Depending on the problem and especially the
-/// computation costs of computing and evaluating neighbors, different LocalImprover might be
+/// Determines for a given solution (as [`EvaluatedSolution`]) the best neighbor that has an
+/// smaller [`ObjectiveValue`][crate::objective::ObjectiveValue].
+/// A solver is equipped with only one [`LocalImprover`].
+/// The [`LocalImprover`] is invoked in each iteration of the solver.
+/// Depending on the problem and especially the
+/// computation costs of computing and evaluating neighbors, different [`LocalImprover`] might be
 /// better.
-/// Returns None if there is no better solution in the neighborhood.
+/// Returns `None` if there is no better solution in the [`Neighborhood`][super::Neighborhood].
 pub trait LocalImprover<S> {
+    /// Determines for a given [`EvaluatedSolution`] the best neighbor that has an smaller
+    /// [`ObjectiveValue`][crate::objective::ObjectiveValue].
+    /// Returns `None` if there is no better solution in the [`Neighborhood`][super::Neighborhood].
+    /// This method is called in each iteration of the
+    /// [`LocalSearchSolver`][super::LocalSearchSolver].
     fn improve(&self, solution: &EvaluatedSolution<S>) -> Option<EvaluatedSolution<S>>;
 }

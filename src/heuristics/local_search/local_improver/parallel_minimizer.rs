@@ -1,3 +1,5 @@
+//! [`ParallelMinimizer`] searches the whole [`Neighborhood`] of a solution in parallel and returns the best
+//! neighbor.
 use rayon::iter::ParallelBridge;
 use rayon::iter::ParallelIterator;
 
@@ -7,16 +9,18 @@ use crate::objective::EvaluatedSolution;
 use crate::objective::Objective;
 use std::sync::Arc;
 
-/// ParallelMinimizer searches the whole neighborhood of a solution and returns the best neighbor.
-/// * This is done in parallel using par_bridge of rayon.
+/// [`ParallelMinimizer`] searches the whole [`Neighborhood`] of a solution in parallel and returns the best neighbor.
+/// * This is done in parallel using
+/// [`par_bridge()`][rayon::iter::ParallelBridge] of [`rayon`].
 /// * If the computation or the evaluation of a neighbor is CPU-heavy this might be a good choice.
-/// * Solution type S must implement Send and Sync.
+/// * Solution type `S` must implement [`Send`] and [`Sync`].
 pub struct ParallelMinimizer<S> {
     neighborhood: Arc<dyn Neighborhood<S>>,
     objective: Arc<Objective<S>>,
 }
 
 impl<S> ParallelMinimizer<S> {
+    /// Creates a new [`ParallelMinimizer`] with the given [`Neighborhood`] and [`Objective`].
     pub fn new(
         neighborhood: Arc<dyn Neighborhood<S>>,
         objective: Arc<Objective<S>>,

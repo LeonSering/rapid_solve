@@ -1,3 +1,6 @@
+//! [`TakeAnyParallelRecursion`] searches in parallel for an improving neighbor and takes the first
+//! one that is found. If no improving neighbor is found, it takes the best solutions found to
+//! recursion.
 use super::super::Neighborhood;
 use super::LocalImprover;
 use crate::objective::EvaluatedSolution;
@@ -8,18 +11,18 @@ use std::sync::mpsc::channel;
 use std::sync::Arc;
 use std::sync::Mutex;
 
-/// This improver searches in parallel for an improving neighbor. The first one that is found by
+/// Searches in parallel for an improving neighbor. The first one that is found by
 /// any thread is taken. If no improving neighbor is found, the best solutions found are taken to
 /// recursion.
 /// * uses parallel computation at two steps:
 ///   - In the recursion when multiple solutions are given, each solution get its own thread.
-///   - Within each thread the neighborhood iterator is tranformed to a ParallelIterator (messes
-/// up the ordering)
+///   - Within each thread the neighborhood iterator is tranformed to a
+///   [`ParallelIterator`] (messes up the ordering).
 /// * As soon as an improving solution is found a terminus-signal is broadcast to all other threads.
-/// * If no improving solution is found the best recursion_width-many solutions per thread (!) are
+/// * If no improving solution is found the best `recursion_width`-many solutions per thread (!) are
 /// take to recursion
 /// (dublicates are removed).
-/// * Is can be fast if the computation or evaluation of a neighbor is CPU-heavy and the neighborhood
+/// * Is can be fast if the computation or evaluation of a neighbor is CPU-heavy and the [`Neighborhood`]
 /// is large.
 /// * Produces quite a bit of overhead.
 /// * Is not deterministic.
@@ -31,14 +34,11 @@ pub struct TakeAnyParallelRecursion<S> {
     objective: Arc<Objective<S>>,
 }
 
-impl<S: Send + Sync + Clone + PartialOrd> LocalImprover<S> for TakeAnyParallelRecursion<S> {
-    fn improve(&self, solution: &EvaluatedSolution<S>) -> Option<EvaluatedSolution<S>> {
-        let old_objective = solution.objective_value();
-        self.improve_recursion(vec![solution.clone()], old_objective, self.recursion_depth)
-    }
-}
-
-impl<S: Send + Sync + Clone + PartialOrd> TakeAnyParallelRecursion<S> {
+impl<S> TakeAnyParallelRecursion<S> {
+    /// Creates a new instance of [`TakeAnyParallelRecursion`]. In addition to the [`Neighborhood`]
+    /// and the [`Objective`] the following parameters are needed:
+    /// * `recursion_depth` is the number of recursions to be done.
+    /// * `recursion_width` is the number of solutions to be taken to recursion.
     pub fn new(
         recursion_depth: u8,
         recursion_width: u8,
@@ -52,7 +52,16 @@ impl<S: Send + Sync + Clone + PartialOrd> TakeAnyParallelRecursion<S> {
             objective,
         }
     }
+}
 
+impl<S: Send + Sync + Clone + PartialOrd> LocalImprover<S> for TakeAnyParallelRecursion<S> {
+    fn improve(&self, solution: &EvaluatedSolution<S>) -> Option<EvaluatedSolution<S>> {
+        let old_objective = solution.objective_value();
+        self.improve_recursion(vec![solution.clone()], old_objective, self.recursion_depth)
+    }
+}
+
+impl<S: Send + Sync + Clone + PartialOrd> TakeAnyParallelRecursion<S> {
     fn improve_recursion(
         &self,
         solutions: Vec<EvaluatedSolution<S>>,

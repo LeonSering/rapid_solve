@@ -1,6 +1,11 @@
+//! Contains the [`EvaluatedSolution`] struct, which is a solution equipped with an
+//! [`ObjectiveValue`].
+
 use super::ObjectiveValue;
 
-/// A solution that has been evaluated by an [`Objective`](crate::objective::Objective).
+/// A solution-wrapper that equips a solution with an
+/// [`ObjectiveValue`]. This is the result of
+/// [evaluating][super::Objective::evaluate] a solution with an [`Objective`][super::Objective].
 #[derive(Clone, Ord, PartialOrd, PartialEq, Eq)]
 pub struct EvaluatedSolution<S> {
     objective_value: ObjectiveValue,
@@ -9,8 +14,8 @@ pub struct EvaluatedSolution<S> {
 
 impl<S> EvaluatedSolution<S> {
     /// Create a [`EvaluatedSolution`]. Usually done by the
-    /// [`evaluate`](crate::objective::Objective::evaluate) method of an
-    /// [`Objective`](crate::objective::Objective) instance.
+    /// [`evaluate`][`super::Objective::evaluate`] method of an
+    /// [`Objective`][`super::Objective`] instance.
     pub fn new(solution: S, objective_value: ObjectiveValue) -> EvaluatedSolution<S> {
         EvaluatedSolution {
             solution,

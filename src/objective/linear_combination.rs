@@ -1,8 +1,10 @@
+//! Contains the [`LinearCombination`] struct, which represents a linear combination of
+//! [`Indicators`][`Indicator`].
 use std::fmt;
 
 use super::{base_value::BaseValue, coefficient::Coefficient, indicator::Indicator};
 
-/// A linear combination of indicators. Forms a level of the objective.
+/// A linear combination of [`Indicators`][`Indicator`] (each equipped with an [`Coefficient`]). Forms a level of the [`Objective`][`super::Objective`].
 pub struct LinearCombination<S> {
     // valueType must be multiplyable with Coefficient
     summands: Vec<(Coefficient, Box<dyn Indicator<S>>)>,

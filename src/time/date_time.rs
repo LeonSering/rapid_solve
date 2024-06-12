@@ -1,3 +1,4 @@
+//! This module contains the [`DateTime`] type and the [`TimePoint`] struct.
 use std::fmt;
 use std::ops::Add;
 use std::ops::Sub;
@@ -10,13 +11,25 @@ use super::{duration::DurationLength, Duration};
 
 // Important: Leap year are integrated. But no daylight-saving.
 
+/// Represents a point in time.
+/// * The smallest unit is seconds.
+/// * Leap years are integrated but no daylight-saving.
+/// * In addition to an actual point in time, it can also be [`Earliest`][`DateTime::Earliest`] or [`Latest`][`DateTime::Latest`], which is the
+/// smallest and largest element in the Ordering.
+/// * A [`Durations`][`Duration`] can be added or subtracted to obtain a new [`DateTime`].
+/// * Two [`DateTime`] can be subtracted to obtain a [`Duration`]. (Note that the left operand must
+/// be later than the right operand, as negative durations are not allowed.)
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug)] // care the ordering of the variants is important
 pub enum DateTime {
-    Earliest, // always earlier than all TimePoints
+    /// The earliest possible point in time. (Smaller than all other [`DateTimes`][`DateTime`].)
+    Earliest,
+    /// An actual point in time.
     Point(TimePoint),
-    Latest, // always later than all TimePoints
+    /// The latest possible point in time. (Larger than all other [`DateTimes`][`DateTime`].)
+    Latest,
 }
 
+/// An actual point in time.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug)] // care the ordering of attributes is important
 pub struct TimePoint {
     days: u64,    // days since 1.1. in year 0
@@ -24,6 +37,8 @@ pub struct TimePoint {
 }
 
 impl DateTime {
+    /// Creates a new [`DateTime`] from a string. The string must be in the format
+    /// "2009-06-15T13:45:13" or "2009-4-15T12:10".
     pub fn new(string: &str) -> DateTime {
         //"2009-06-15T13:45:13" or "2009-4-15T12:10"
         let shortened = string.replace('Z', "");
@@ -56,6 +71,7 @@ impl DateTime {
 }
 
 impl DateTime {
+    /// Returns the [`DateTime`] as a string in the format "2009-06-15T13:45:13".
     pub fn as_iso(&self) -> String {
         match self {
             DateTime::Earliest => String::from("EARLIEST"),
@@ -87,6 +103,27 @@ impl Add<Duration> for DateTime {
     }
 }
 
+impl Sub<Duration> for DateTime {
+    type Output = DateTime;
+
+    fn sub(self, other: Duration) -> DateTime {
+        match self {
+            DateTime::Earliest => DateTime::Earliest,
+            DateTime::Latest => {
+                if other == Duration::Infinity {
+                    panic!("Cannot subtract Infinity from Latest");
+                } else {
+                    DateTime::Latest
+                }
+            }
+            DateTime::Point(t) => match other {
+                Duration::Infinity => DateTime::Earliest,
+                Duration::Length(d) => DateTime::Point(t - d),
+            },
+        }
+    }
+}
+
 impl Sub for DateTime {
     type Output = Duration;
 
@@ -110,27 +147,6 @@ impl Sub for DateTime {
                     _ => panic!("This should never be reached"),
                 }
             }
-        }
-    }
-}
-
-impl Sub<Duration> for DateTime {
-    type Output = DateTime;
-
-    fn sub(self, other: Duration) -> DateTime {
-        match self {
-            DateTime::Earliest => DateTime::Earliest,
-            DateTime::Latest => {
-                if other == Duration::Infinity {
-                    panic!("Cannot subtract Infinity from Latest");
-                } else {
-                    DateTime::Latest
-                }
-            }
-            DateTime::Point(t) => match other {
-                Duration::Infinity => DateTime::Earliest,
-                Duration::Length(d) => DateTime::Point(t - d),
-            },
         }
     }
 }

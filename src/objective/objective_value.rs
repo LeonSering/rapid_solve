@@ -1,3 +1,5 @@
+//! Contains the [`ObjectiveValue`] struct, which represents the hierarchical objective value of a
+//! solution.
 use std::{
     cmp::Ordering,
     ops::{Add, Sub},
@@ -6,14 +8,15 @@ use std::{
 
 use super::base_value::BaseValue;
 
-/// The hierarchical objective value of a solution.
+/// The hierarchical objective value of a solution, which is a vector of
+/// [`BaseValues`][`BaseValue`].
 #[derive(Clone, Debug)]
 pub struct ObjectiveValue {
     objective_vector: Vec<BaseValue>,
 }
 
 impl ObjectiveValue {
-    /// Creates a new objective value. This is usally done by the [evaluate](crate::objective::Objective::evaluate) method of an Objective.
+    /// Creates a new objective value. This is usally done by the [evaluate][super::Objective::evaluate] method of an Objective.
     pub fn new(objective_vector: Vec<BaseValue>) -> ObjectiveValue {
         ObjectiveValue { objective_vector }
     }
@@ -21,6 +24,11 @@ impl ObjectiveValue {
     /// Returns the entries of the objective vector.
     pub fn iter(&self) -> Iter<BaseValue> {
         self.objective_vector.iter()
+    }
+
+    /// Returns the entries of the objective vector as a vector.
+    pub fn as_vec(&self) -> &Vec<BaseValue> {
+        &self.objective_vector
     }
 }
 

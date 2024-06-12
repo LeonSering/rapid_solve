@@ -1,12 +1,14 @@
+//! [`Minimizer`] searches the whole [`Neighborhood`] of a solution and returns the best
+//! neighbor.
 use super::super::Neighborhood;
 use super::LocalImprover;
 use crate::objective::EvaluatedSolution;
 use crate::objective::Objective;
 use std::sync::Arc;
 
-/// Minimizer searches the whole neighborhood of a solution and returns the best neighbor.
+/// [`Minimizer`] searches the whole [`Neighborhood`] of a solution and returns the best neighbor.
 /// * No parallelism is used.
-/// * Works for every solution type S.
+/// * Works for every solution type `S`.
 /// * Is fast if the computation and the evaluating of a neighbor is cheap.
 pub struct Minimizer<S> {
     neighborhood: Arc<dyn Neighborhood<S>>,
@@ -14,6 +16,7 @@ pub struct Minimizer<S> {
 }
 
 impl<S> Minimizer<S> {
+    /// Creates a new [`Minimizer`] with the given [`Neighborhood`] and [`Objective`].
     pub fn new(
         neighborhood: Arc<dyn Neighborhood<S>>,
         objective: Arc<Objective<S>>,

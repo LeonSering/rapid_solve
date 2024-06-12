@@ -1,3 +1,5 @@
+//! This module contains the [`Duration`] type and the [`DurationLength`] struct.
+
 use std::fmt;
 use std::iter::Sum;
 use std::ops::Add;
@@ -7,12 +9,23 @@ use super::converters::from_d_hh_mm_ss_to_seconds;
 use super::converters::from_h_mm_ss_to_seconds;
 use super::converters::from_seconds_to_h_mm_ss;
 
+/// Represents a duration of time.
+/// * In addition to a finite duration, it can also represent an infinite duration. (E.g. if you
+/// subtract [`DateTime::Latest`][`super::date_time::DateTime::Latest`] from some other DateTime, you get [`Duration::Infinity`].)
+/// * The smallest unit of time is a second.
+/// * Can be added or subtracted from each other.
+/// * Can be added or subtracted from [`DateTimes`][`super::date_time::DateTime`].
+/// * Negative durations are not allowed. (E.g. you cannot subtract a longer duration from a
+/// shorter duration.)
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug)] // care the ordering of the variants is important
 pub enum Duration {
+    /// A time duration of finite length.
     Length(DurationLength),
-    Infinity, // always longer than all other Durations
+    /// An infinite time duration. (Longer than all other [`Durations`][`Duration`].)
+    Infinity,
 }
 
+/// An finite duration of time.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct DurationLength {
     pub(super) seconds: u64,
@@ -30,6 +43,8 @@ impl Duration {
             Duration::Infinity => Err("Cannot get minutes of Duration::Infinity."),
         }
     }
+
+    /// Returns the duration in seconds.
     pub fn in_sec(&self) -> Result<u64, &str> {
         match self {
             Duration::Length(l) => Ok(l.seconds),
@@ -39,8 +54,11 @@ impl Duration {
 }
 
 impl Duration {
+    /// The zero duration.
     pub const ZERO: Duration = Duration::Length(DurationLength { seconds: 0 });
 
+    /// Creates a new [`Duration`] from a string. The string must be in the format "hh:mm" or
+    /// "hh:mm:ss".
     pub fn new(string: &str) -> Duration {
         // "hh:mm" or "hh:mm:ss"
         let splitted: Vec<&str> = string.split(&[':'][..]).collect();
@@ -65,10 +83,13 @@ impl Duration {
         })
     }
 
+    /// Creates a new [`Duration`] from a number of seconds.
     pub fn from_seconds(seconds: u64) -> Duration {
         Duration::Length(DurationLength { seconds })
     }
 
+    /// Creates a new [`Duration`] from an ISO 8601 string. The string must be in the format
+    /// "P10DT0H31M02S".
     pub fn from_iso(string: &str) -> Duration {
         //"P10DT0H31M02S"
         let splitted: Vec<&str> = string
