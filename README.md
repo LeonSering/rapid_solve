@@ -1,7 +1,12 @@
+# RapidSolve
+
+[![RapidSolve crate]](https://crates.io/crates/rapid_solve)
+[![RapidSolve documentation]](https://docs.rs/rapid_solve)
+
 This library provides a metaheuristic framework for solving combinatorial optimization
 problems.
 
-# Overview
+## Overview
 
 ### Metaheuristics
 
@@ -25,7 +30,7 @@ until the violation is zero and then starts to optimize the remaining objective 
 As an example we provide a simple implementation of the Traveling Salesman Problem
 (TSP) with the 3-opt neighborhood.
 
-# How to use this library (step-by-step example)
+## How to use this library (step-by-step example)
 
 Suppose you have given a combinatorial optimization problem and defined a solution type.
 To run a local search solver you need to do the following four steps:
