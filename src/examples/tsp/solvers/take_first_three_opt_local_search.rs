@@ -8,6 +8,7 @@ use std::sync::Arc;
 
 /// Builds a [`LocalSearchSolver`] with [`TakeFirstRecursion`] as
 /// [`LocalImprover`][`crate::heuristics::local_search::local_improver::LocalImprover`].
+/// The time limit is set to 10 minutes. There is no iteration limit.
 pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<TspTour> {
     let objective: Arc<Objective<TspTour>> = Arc::new(build_tsp_objective());
     let neighborhood = Arc::new(ThreeOptNeighborhood::new(tsp_instance));
@@ -17,10 +18,12 @@ pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<TspTour> {
         neighborhood.clone(),
         objective.clone(),
     ));
-    LocalSearchSolver::with_local_improver_and_function(
+    LocalSearchSolver::with_options(
         neighborhood,
         objective,
         Some(local_improver),
+        None,
+        Some(std::time::Duration::from_secs(600)),
         None,
     )
 }
