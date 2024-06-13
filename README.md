@@ -1,7 +1,4 @@
-# RapidSolve
-
-[![RapidSolve crate]](https://crates.io/crates/rapid_solve)
-[![RapidSolve documentation]](https://docs.rs/rapid_solve)
+# RapidSolve [![RapidSolve crate](https://img.shields.io/crates/v/rapid_solve.svg)](https://crates.io/crates/rapid_solve) [![RapidSolve documentation](https://docs.rs/rapid_solve/badge.svg)](https://docs.rs/rapid_solve)
 
 This library provides a metaheuristic framework for solving combinatorial optimization
 problems.
