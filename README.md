@@ -80,7 +80,7 @@ struct SquaredDifference;
 
 impl Indicator<Solution> for SquaredDifference {
     fn evaluate(&self, solution: &Solution) -> BaseValue {
-        let squared_diff: i64 = (0..solution.0.len())/docs.rslllllllllllhttps://docs.rs
+        let squared_diff: i64 = (0..solution.0.len())
             .map(|i| (solution.0[i] - solution.0[(i + 1) % solution.0.len()]).pow(2))
             .sum();
         BaseValue::Integer(squared_diff)
