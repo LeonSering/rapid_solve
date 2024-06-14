@@ -12,7 +12,6 @@ type NodeCount = usize;
 
 /// A [`TspInstance`] consists of a (potentially asymmetric) distance matrix and can be loading from a
 /// [TSPLIB file](http://comopt.ifi.uni-heidelberg.de/software/TSPLIB95/).
-#[derive(PartialOrd, PartialEq)]
 pub struct TspInstance {
     number_of_nodes: NodeCount,
     distance_matrix: Vec<Vec<Distance>>,

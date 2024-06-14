@@ -20,8 +20,7 @@ use std::sync::Mutex;
 ///   [`ParallelIterator`] (messes up the ordering).
 /// * As soon as an improving solution is found a terminus-signal is broadcast to all other threads.
 /// * If no improving solution is found the best `recursion_width`-many solutions per thread (!) are
-/// take to recursion
-/// (dublicates are removed).
+/// taken to recursion (dublicates according to the objective value are removed).
 /// * Is can be fast if the computation or evaluation of a neighbor is CPU-heavy and the [`Neighborhood`]
 /// is large.
 /// * Produces quite a bit of overhead.
@@ -54,14 +53,14 @@ impl<S> TakeAnyParallelRecursion<S> {
     }
 }
 
-impl<S: Send + Sync + Clone + PartialOrd> LocalImprover<S> for TakeAnyParallelRecursion<S> {
+impl<S: Send + Sync + Clone> LocalImprover<S> for TakeAnyParallelRecursion<S> {
     fn improve(&self, solution: &EvaluatedSolution<S>) -> Option<EvaluatedSolution<S>> {
         let old_objective = solution.objective_value();
         self.improve_recursion(vec![solution.clone()], old_objective, self.recursion_depth)
     }
 }
 
-impl<S: Send + Sync + Clone + PartialOrd> TakeAnyParallelRecursion<S> {
+impl<S: Send + Sync + Clone> TakeAnyParallelRecursion<S> {
     fn improve_recursion(
         &self,
         solutions: Vec<EvaluatedSolution<S>>,
@@ -100,7 +99,7 @@ impl<S: Send + Sync + Clone + PartialOrd> TakeAnyParallelRecursion<S> {
                                 schedules_mutex.push(evaluated_neighbor.clone());
 
                                 schedules_mutex.sort_unstable_by(|a, b| {
-                                    a.partial_cmp(b).expect("Could not compare solutions")
+                                    a.objective_value().cmp(b.objective_value())
                                 });
                                 schedules_mutex.dedup_by(|s1, s2| {
                                     s1.objective_value().cmp(s2.objective_value()).is_eq()
@@ -160,14 +159,9 @@ impl<S: Send + Sync + Clone + PartialOrd> TakeAnyParallelRecursion<S> {
                 let mut schedules_for_recursion: Vec<EvaluatedSolution<S>> =
                     solution_collection.into_iter().flatten().collect();
 
-                schedules_for_recursion.sort_unstable_by(|a, b| {
-                    a.partial_cmp(b).expect("Could not compare solutions")
-                });
-                schedules_for_recursion.dedup_by(|s1, s2| {
-                    s1.partial_cmp(&s2)
-                        .expect("Could not compare solutions")
-                        .is_eq()
-                });
+                schedules_for_recursion
+                    .sort_unstable_by(|a, b| a.objective_value().cmp(b.objective_value()));
+                schedules_for_recursion.dedup_by(|a, b| a.objective_value() == b.objective_value());
 
                 self.improve_recursion(
                     schedules_for_recursion,

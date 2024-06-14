@@ -2,7 +2,7 @@ use crate::time::Duration;
 
 use super::*;
 
-#[derive(PartialEq, PartialOrd, Debug, Clone, Copy)]
+#[derive(Clone, PartialEq, PartialOrd)]
 struct TestSolution {
     field1: i32,
     field2: i32,

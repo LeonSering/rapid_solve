@@ -10,7 +10,8 @@ use std::sync::Arc;
 /// If no improvement is found, it takes the best neighbors into recursion.
 /// * Works the same as [`TakeFirst`][super::take_first::TakeFirst] but with recursion.
 /// * Repeats recursion `recursion_depth` often.
-/// * Only the best `recursion_width`-many solution are considered for recursion.
+/// * Only the best `recursion_width`-many solution are considered for recursion. (Dublicates
+/// accordings to the objective value are removed.)
 /// * The diversification for recursion is probably low.
 /// * As there is no parallelization this improver is fully deterministic.
 pub struct TakeFirstRecursion<S> {
@@ -40,7 +41,7 @@ impl<S> TakeFirstRecursion<S> {
     }
 }
 
-impl<S: Clone + PartialOrd> LocalImprover<S> for TakeFirstRecursion<S> {
+impl<S: Clone> LocalImprover<S> for TakeFirstRecursion<S> {
     fn improve(&self, solution: &EvaluatedSolution<S>) -> Option<EvaluatedSolution<S>> {
         let old_objective_value = solution.objective_value();
         self.improve_recursion(
@@ -51,7 +52,7 @@ impl<S: Clone + PartialOrd> LocalImprover<S> for TakeFirstRecursion<S> {
     }
 }
 
-impl<S: Clone + PartialOrd> TakeFirstRecursion<S> {
+impl<S: Clone> TakeFirstRecursion<S> {
     /// Returns the first improving solution in the neighborhood of the given solutions.
     /// If no improvement is found, None is returned.
     fn improve_recursion(
@@ -75,10 +76,10 @@ impl<S: Clone + PartialOrd> TakeFirstRecursion<S> {
             .find(|neighbor| {
                 if remaining_recursion > 0 {
                     solutions_for_recursion.push(neighbor.clone());
-                    solutions_for_recursion.sort_unstable_by(|a, b| {
-                        a.partial_cmp(b).expect("Could not compare solutions")
-                    });
-                    solutions_for_recursion.dedup();
+                    solutions_for_recursion
+                        .sort_unstable_by(|a, b| a.objective_value().cmp(b.objective_value()));
+                    solutions_for_recursion
+                        .dedup_by(|a, b| a.objective_value() == b.objective_value());
                     let width = (self.recursion_width as usize).min(solutions_for_recursion.len());
                     solutions_for_recursion.truncate(width);
                 }

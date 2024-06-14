@@ -4,7 +4,7 @@ use std::sync::Arc;
 use super::{tsp_instance::TspInstance, Distance, NodeIdx};
 
 /// Represents a tour of a [`TspInstance`]. Contain all indices between 0 and n-1.
-#[derive(Clone, PartialOrd, PartialEq)]
+#[derive(Clone)]
 pub struct TspTour {
     nodes: Vec<NodeIdx>,
     total_distance: Distance,
