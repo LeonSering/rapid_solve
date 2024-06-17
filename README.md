@@ -11,6 +11,7 @@ The following metaheuristics are included:
 
 - [local search](https://docs.rs/rapid_solve/heuristics/local_search/index.html) (with several neighborhood
   exploration strategies)
+- [threshold accepting](https://docs.rs/rapid_solve/heuristics/threshold_accepting/index.html)
 
 ### Hierarchical Objective
 

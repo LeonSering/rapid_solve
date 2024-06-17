@@ -6,6 +6,7 @@
 //! The following metaheuristics are included:
 //! - [local search][heuristics::local_search] (with several neighborhood
 //! exploration strategies)
+//! - [threshold accepting][heuristics::threshold_accepting]
 //!
 //! ### Hierarchical Objective
 //! The framework supports [hierarchical objective][objective], i.e., objectives
@@ -28,7 +29,7 @@
 //!    [`LinearCombinations`][objective::LinearCombination] of these indicators.
 //! 2. Define modifications for your solution type. The solution type should not be mutable,
 //!    instead a modified clone should be returned.
-//! 3. Implement the [`Neighborhood`][heuristics::local_search::Neighborhood] for the local search.
+//! 3. Implement the [`Neighborhood`][heuristics::common::Neighborhood] for the local search.
 //! 4. Initialize the [`LocalSearchSolver`][heuristics::local_search::LocalSearchSolver]
 //! and run it.
 //!
@@ -114,7 +115,7 @@
 //! }
 //! ```
 //!
-//! #### 3. Implement the [`Neighborhood`][heuristics::local_search::Neighborhood].
+//! #### 3. Implement the [`Neighborhood`][heuristics::common::Neighborhood].
 //!
 //! In our example we want to first try to change all entries and then try all swaps.
 //!
@@ -224,6 +225,7 @@
 //! #         Box::new(change_entry.chain(swap))
 //! #     }
 //! # }
+//! use rapid_solve::heuristics::Solver;
 //! use rapid_solve::heuristics::local_search::LocalSearchSolver;
 //! use std::sync::Arc;
 //!

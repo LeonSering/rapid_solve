@@ -8,7 +8,9 @@ pub mod take_first;
 pub mod take_first_recursion;
 
 pub use minimizer::Minimizer;
+pub use parallel_minimizer::ParallelMinimizer;
 pub use take_any_parallel_recursion::TakeAnyParallelRecursion;
+pub use take_first::TakeFirst;
 pub use take_first_recursion::TakeFirstRecursion;
 
 use crate::objective::EvaluatedSolution;

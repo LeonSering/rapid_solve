@@ -2,11 +2,14 @@ use std::env;
 use std::sync::Arc;
 
 use rapid_solve::examples::tsp::solvers;
+use rapid_solve::examples::tsp::tsp_tour_with_info::TspTourWithInfo;
 use rapid_solve::examples::tsp::{tsp_instance::TspInstance, tsp_tour::TspTour};
 use rapid_solve::heuristics::Solver;
 
+/// With this main function, you can run the TSP solver with a provided TSPLIB file.
 fn main() {
     let args: Vec<String> = env::args().collect();
+    let start_time = std::time::Instant::now();
 
     if args.len() != 3 {
         print_usage(args[0].as_str());
@@ -14,25 +17,40 @@ fn main() {
     }
 
     let tsp_instance = Arc::new(TspInstance::from_tsplib_file(&args[2]).unwrap());
-    let tour = TspTour::from_instance_nearest_neighbor(tsp_instance.clone());
+    let initial_tour = TspTour::from_instance_nearest_neighbor(tsp_instance.clone());
 
-    let solver: Box<dyn Solver<TspTour>> = match args[1].as_str() {
+    let final_tour = match args[1].as_str() {
         "basic_local_search" => {
-            Box::new(solvers::basic_three_opt_local_search::build(tsp_instance))
+            let basic_local_search_solver =
+                Box::new(solvers::basic_local_search::build(tsp_instance));
+            basic_local_search_solver.solve(initial_tour).unwrap()
         }
-        "take_first_local_search" => Box::new(solvers::take_first_three_opt_local_search::build(
-            tsp_instance,
-        )),
-        "threshold_accepting" => Box::new(solvers::threshold_accepting::build(tsp_instance)),
+
+        "take_first_local_search" => {
+            let take_first_local_search_solver =
+                Box::new(solvers::take_first_local_search::build(tsp_instance));
+            take_first_local_search_solver.solve(initial_tour).unwrap()
+        }
+        "threshold_accepting" => {
+            let threshold_accepting_solver =
+                Box::new(solvers::threshold_accepting::build(tsp_instance));
+            let tsp_tour_with_info =
+                threshold_accepting_solver.solve(TspTourWithInfo::new(initial_tour, 0));
+            tsp_tour_with_info.unwrap().unwrap()
+        }
         _ => {
             eprintln!("Unknown solver: {}", args[1]);
             print_usage(args[0].as_str());
             std::process::exit(1);
         }
     };
-    let final_tour = solver.solve(tour);
 
-    println!("\nFinal tour: {:?}", final_tour.solution().get_nodes());
+    println!(
+        "Running time: {:0.2}sec",
+        start_time.elapsed().as_secs_f64()
+    );
+
+    println!("\nFinal tour: {:?}", final_tour.get_nodes());
 }
 
 fn print_usage(program_name: &str) {

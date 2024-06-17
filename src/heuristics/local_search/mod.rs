@@ -1,4 +1,5 @@
-//! This module contains the local search solver and its components.
+//! This module contains the [`LocalSearchSolver`] and several [`local_improvers`][`local_improver`] (neighborhood
+//! exploration stategies).
 //! The [local search heuristic](https://en.wikipedia.org/wiki/Local_search_(optimization))
 //! starts with an initial solution and iteratively improves it by
 //! exploring the neighborhood of the current solution.
