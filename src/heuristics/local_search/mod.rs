@@ -78,7 +78,7 @@ impl<S> LocalSearchSolver<S> {
             objective,
             local_improver,
             function_between_steps: function_between_steps
-                .unwrap_or_else(function_between_steps::get_default),
+                .unwrap_or(function_between_steps::default()),
             time_limit,
             iteration_limit,
         }

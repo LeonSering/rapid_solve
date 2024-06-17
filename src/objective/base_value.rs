@@ -24,6 +24,33 @@ pub enum BaseValue {
 }
 
 impl BaseValue {
+    /// Unwraps [`BaseValue::Integer`].
+    /// Panics if other variant.
+    pub fn unwrap_integer(self) -> i64 {
+        match self {
+            BaseValue::Integer(i) => i,
+            _ => panic!("Expected BaseValue::Integer, got {:?}", self),
+        }
+    }
+
+    /// Unwraps [`BaseValue::Float`].
+    /// Panics if other variant.
+    pub fn unwrap_float(self) -> f64 {
+        match self {
+            BaseValue::Float(f) => f,
+            _ => panic!("Expected BaseValue::Float, got {:?}", self),
+        }
+    }
+
+    /// Unwraps [`BaseValue::Duration`].
+    /// Panics if other variant.
+    pub fn unwrap_duration(self) -> Duration {
+        match self {
+            BaseValue::Duration(d) => d,
+            _ => panic!("Expected BaseValue::Duration, got {:?}", self),
+        }
+    }
+
     /// Prints the difference between two BaseValuesin green or red depending on the sign.
     pub fn print_difference(self, other: BaseValue) -> String {
         if self == other {
@@ -153,7 +180,7 @@ impl fmt::Display for BaseValue {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             BaseValue::Integer(i) => write!(f, "{}", i),
-            BaseValue::Float(c) => write!(f, "{}", c),
+            BaseValue::Float(c) => write!(f, "{:0.2}", c),
             BaseValue::Duration(d) => write!(f, "{}", d),
             BaseValue::Maximum => write!(f, "MAX"),
             BaseValue::Zero => write!(f, "0"),

@@ -7,6 +7,7 @@
 //! - [local search][heuristics::local_search] (with several neighborhood
 //! exploration strategies)
 //! - [threshold accepting][heuristics::threshold_accepting]
+//! - [simulated annealing][heuristics::simulated_annealing]
 //!
 //! ### Hierarchical Objective
 //! The framework supports [hierarchical objective][objective], i.e., objectives

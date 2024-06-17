@@ -26,7 +26,7 @@ pub type FunctionBetweenSteps<S> = Box<
     ),
 >;
 
-pub fn get_default<S>() -> FunctionBetweenSteps<S> {
+pub fn default<S>() -> FunctionBetweenSteps<S> {
     Box::new(
         |iteration,
          current_solution,

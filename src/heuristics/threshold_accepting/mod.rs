@@ -17,9 +17,12 @@ use crate::objective::{EvaluatedSolution, Objective, ObjectiveValue};
 use std::sync::Arc;
 use std::time as stdtime;
 
-/// The threshold accepting solver uses a [`Neighborhood`], an [`Objective`], an initial threshold
-/// and a threshold factor (between 0 and 1, e.g., 0.9) to find a good solution, while occasionally
-/// accepting worse solutions with the hope to not get trapped within a bad local minimum.
+/// Type for the `threshold_factor`.
+pub type ScalingFactor = f32;
+
+/// The threshold accepting solver uses a [`Neighborhood`], an [`Objective`], an
+/// `initial_threshold` and a `threshold_factor` (between 0 and 1, e.g., 0.9) to find a good solution,
+/// while occasionally accepting worse solutions with the hope to not get trapped within a bad local minimum.
 /// * The `function_between_steps` is executed after each improvement step.
 /// * The default `function_between_steps` (if `None`) is printing the iteration number, the objective value
 /// (in comparison the the previous objective value) and the time elapsed since the start.
@@ -29,8 +32,8 @@ use std::time as stdtime;
 pub struct ThresholdAcceptingSolver<S> {
     neighborhood: Arc<dyn Neighborhood<S>>,
     objective: Arc<Objective<S>>,
-    threshold: ObjectiveValue,
-    threshold_factor: f32,
+    initial_threshold: ObjectiveValue,
+    threshold_factor: ScalingFactor,
     function_between_steps: FunctionBetweenSteps<S>,
     time_limit: Option<stdtime::Duration>,
     iteration_limit: Option<u32>,
@@ -38,17 +41,17 @@ pub struct ThresholdAcceptingSolver<S> {
 
 impl<S> ThresholdAcceptingSolver<S> {
     /// Creates a new [`ThresholdAcceptingSolver`] with the given [`Neighborhood`], [`Objective`],
-    /// initial threshold and threshold factor (value between 0 and 1, e.g., 0.9).
+    /// `initial_threshold` and `threshold_factor` (value between 0 and 1, e.g., 0.9).
     pub fn initialize(
         neighborhood: Arc<dyn Neighborhood<S>>,
         objective: Arc<Objective<S>>,
-        threshold: ObjectiveValue,
-        threshold_factor: f32,
+        initial_threshold: ObjectiveValue,
+        threshold_factor: ScalingFactor,
     ) -> Self {
         Self::with_options(
             neighborhood,
             objective,
-            threshold,
+            initial_threshold,
             threshold_factor,
             None,
             None,
@@ -57,7 +60,7 @@ impl<S> ThresholdAcceptingSolver<S> {
     }
 
     /// Creates a new [`ThresholdAcceptingSolver`] with the given [`Neighborhood`], [`Objective`],
-    /// initial threshold and threshold factor (value between 0 and 1, e.g., 0.9).
+    /// `initial_threshold` and `threshold_factor` (value between 0 and 1, e.g., 0.9).
     /// * `function_between_steps` is executed after each improvement step. If `None`, the default
     /// is printing the iteration number, the objective value (in comparison the the previous
     /// objective value) and the time elapsed since the start.
@@ -72,8 +75,8 @@ impl<S> ThresholdAcceptingSolver<S> {
     pub fn with_options(
         neighborhood: Arc<dyn Neighborhood<S>>,
         objective: Arc<Objective<S>>,
-        threshold: ObjectiveValue,
-        threshold_factor: f32,
+        initial_threshold: ObjectiveValue,
+        threshold_factor: ScalingFactor,
         function_between_steps: Option<FunctionBetweenSteps<S>>,
         time_limit: Option<stdtime::Duration>,
         iteration_limit: Option<u32>,
@@ -81,10 +84,10 @@ impl<S> ThresholdAcceptingSolver<S> {
         Self {
             neighborhood,
             objective,
-            threshold,
+            initial_threshold,
             threshold_factor,
             function_between_steps: function_between_steps
-                .unwrap_or_else(|| function_between_steps::get_default()),
+                .unwrap_or(function_between_steps::default()),
             time_limit,
             iteration_limit,
         }
@@ -97,7 +100,7 @@ impl<S: Clone> Solver<S> for ThresholdAcceptingSolver<S> {
         let start_time = stdtime::Instant::now();
         let mut current_solution = self.objective.evaluate(initial_solution);
         let mut best_solution_seen = current_solution.clone();
-        let mut current_threshold: ObjectiveValue = self.threshold.clone();
+        let mut current_threshold: ObjectiveValue = self.initial_threshold.clone();
 
         let mut iteration_counter = 1;
 

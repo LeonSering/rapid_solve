@@ -38,6 +38,13 @@ fn main() {
                 threshold_accepting_solver.solve(TspTourWithInfo::new(initial_tour, 0));
             tsp_tour_with_info.unwrap().unwrap()
         }
+        "simulated_annealing" => {
+            let simulated_annealing_solver =
+                Box::new(solvers::simulated_annealing::build(tsp_instance));
+            let tsp_tour_with_info =
+                simulated_annealing_solver.solve(TspTourWithInfo::new(initial_tour, 0));
+            tsp_tour_with_info.unwrap().unwrap()
+        }
         _ => {
             eprintln!("Unknown solver: {}", args[1]);
             print_usage(args[0].as_str());
@@ -45,12 +52,12 @@ fn main() {
         }
     };
 
+    println!("\nFinal tour: {:?}", final_tour.get_nodes());
+    println!("Total distance: {:0.2}", final_tour.get_total_distance());
     println!(
-        "Running time: {:0.2}sec",
+        "\nRunning time: {:0.2}sec",
         start_time.elapsed().as_secs_f64()
     );
-
-    println!("\nFinal tour: {:?}", final_tour.get_nodes());
 }
 
 fn print_usage(program_name: &str) {

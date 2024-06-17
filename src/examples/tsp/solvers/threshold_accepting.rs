@@ -30,11 +30,13 @@ pub fn build(tsp_instance: Arc<TspInstance>) -> ThresholdAcceptingSolver<TspTour
         .map(|(i, j)| tsp_instance.get_distance(i, j))
         .sum::<Distance>()
         / (node_count * (node_count - 1)) as Distance;
+    let initial_threshold = ObjectiveValue::new(vec![BaseValue::Float(average_distance)]);
+
+    let neighborhood = Arc::new(RotatedThreeOptNeighborhood::new(tsp_instance));
 
     let objective: Arc<Objective<TspTourWithInfo>> =
         Arc::new(build_objective_for_tsp_tour_with_info());
-    let neighborhood = Arc::new(RotatedThreeOptNeighborhood::new(tsp_instance));
-    let initial_threshold = ObjectiveValue::new(vec![BaseValue::Float(average_distance)]);
+
     ThresholdAcceptingSolver::initialize(neighborhood, objective, initial_threshold, 0.9)
 }
 
