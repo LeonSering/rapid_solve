@@ -5,7 +5,7 @@
 //! # Overview
 //! ### Metaheuristics
 //! The following [metaheuristics][heuristics] are included:
-//! - [local search][heuristics::local_search] (with several neighborhood
+//! - [local search][heuristics::local_search] (with recursion and several neighborhood
 //! exploration strategies)
 //! - [threshold accepting][heuristics::threshold_accepting]
 //! - [simulated annealing][heuristics::simulated_annealing]

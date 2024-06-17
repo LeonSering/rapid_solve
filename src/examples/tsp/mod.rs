@@ -1,4 +1,4 @@
-//! A simple implementation of the [Travelling Salesman Problem (TSP)](https://en.wikipedia.org/wiki/Travelling_salesman_problem).
+//! A simple implementation of the [Travelling Salesman Problem (TSP)](https://en.wikipedia.org/wiki/Travelling_salesman_problem) and [several metaheuristic solvers][solvers].
 
 pub mod neighborhood;
 pub mod objective;

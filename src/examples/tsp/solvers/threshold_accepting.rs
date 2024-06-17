@@ -1,5 +1,23 @@
 //! This module contains the implementation of the [`ThresholdAcceptingSolver`] for the TSP. See
 //! the [build] function for details.
+//! ```rust
+//! pub fn build(tsp_instance: Arc<TspInstance>) -> ThresholdAcceptingSolver<TspTourWithInfo> {
+//!     let node_count = tsp_instance.get_number_of_nodes();
+//!     let average_distance: Distance = (0..node_count)
+//!         .flat_map(|i| (0..node_count).filter_map(move |j| if i != j { Some((i, j)) } else { None }))
+//!         .map(|(i, j)| tsp_instance.get_distance(i, j))
+//!         .sum::<Distance>()
+//!         / (node_count * (node_count - 1)) as Distance;
+//!     let initial_threshold = ObjectiveValue::new(vec![BaseValue::Float(average_distance)]);
+//!
+//!     let neighborhood = Arc::new(RotatedThreeOptNeighborhood::new(tsp_instance));
+//!
+//!     let objective: Arc<Objective<TspTourWithInfo>> =
+//!         Arc::new(build_objective_for_tsp_tour_with_info());
+//!
+//!     ThresholdAcceptingSolver::initialize(neighborhood, objective, initial_threshold, 0.9)
+//! }
+//! ```
 use std::sync::Arc;
 
 use crate::{

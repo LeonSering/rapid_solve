@@ -2,6 +2,13 @@
 //! [`Neighborhood`][`crate::heuristics::common::Neighborhood`].
 //! This solver searches in each step the whole neighborhood of the current [`TspTour`] (in parallel) and
 //! picks the best neighbor.
+//! ```rust
+//! pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<TspTour> {
+//!     let objective: Arc<Objective<TspTour>> = Arc::new(build_tsp_objective());
+//!     let neighborhood = Arc::new(ThreeOptNeighborhood::new(tsp_instance));
+//!     LocalSearchSolver::initialize(neighborhood, objective)
+//! }
+//! ```
 use super::super::{objective::build_tsp_objective, tsp_instance::TspInstance, tsp_tour::TspTour};
 use crate::{
     examples::tsp::neighborhood::ThreeOptNeighborhood, heuristics::local_search::LocalSearchSolver,
