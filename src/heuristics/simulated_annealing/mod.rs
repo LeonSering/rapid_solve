@@ -15,6 +15,9 @@
 //! * The simulated annealing heuristic is similar to the deterministic [threshold accepting
 //! heuristic][super::threshold_accepting], which performs similar, but does not require
 //! computing the acceptance probability.
+//!
+//! For an example, see the [simulated annealing solver for the
+//! TSP][crate::examples::tsp::solvers::simulated_annealing].
 use std::{sync::Arc, time as stdtime};
 
 use rand::rngs::StdRng;
@@ -59,8 +62,8 @@ pub type AcceptanceProbabilityFunction =
 /// * The solver stops after a certain number of iterations or after a certain time limit.
 /// * If `iteration_limit` and `time_limit` is `None`, the solver runs until a whole neighborhood is explored
 /// without any acceptance.
-/// For a high-level overview, see the [module documentation][super::threshold_accepting] and for an example, see the
-/// [threshold accepting solver for the TSP][crate::examples::tsp::solvers::threshold_accepting].
+/// For a high-level overview, see the [module documentation][super::simulated_annealing] and for an example, see the
+/// [simulated annealing solver for the TSP][crate::examples::tsp::solvers::simulated_annealing].
 pub struct SimulatedAnnealingSolver<S> {
     neighborhood: Arc<dyn Neighborhood<S>>,
     objective: Arc<Objective<S>>,

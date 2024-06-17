@@ -10,6 +10,9 @@
 //! * The threshold accepting heuristic is similar to the [simulated annealing
 //! heuristic][super::simulated_annealing], but deterministic and without
 //! computing the acceptance probability (which often contains costly computations of exponential functions).
+//!
+//! For an example, see the [threshold accepting solver for the
+//! TSP][crate::examples::tsp::solvers::threshold_accepting].
 
 use super::common::{default_function_between_steps, FunctionBetweenSteps, Neighborhood};
 use super::Solver;

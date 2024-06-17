@@ -22,7 +22,6 @@
 //!                     .unwrap()
 //!                     .unwrap_float();
 //!                 let new_total_distance = new_objective_value.iter().next().unwrap().unwrap_float();
-//!
 //!                 ((current_total_distance - new_total_distance) / temperature).exp()
 //!             }
 //!         },
@@ -95,7 +94,6 @@ pub fn build(tsp_instance: Arc<TspInstance>) -> SimulatedAnnealingSolver<TspTour
                     .unwrap()
                     .unwrap_float();
                 let new_total_distance = new_objective_value.iter().next().unwrap().unwrap_float();
-
                 ((current_total_distance - new_total_distance) / temperature).exp()
             }
         },

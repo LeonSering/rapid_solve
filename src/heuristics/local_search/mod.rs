@@ -7,7 +7,9 @@
 //! * The search stops after a certain number of iterations, after a certain time limit, or if no
 //! improvement is found in the neighborhood (local minimum is reached).
 //! * The last solution (which is the best found) is returned.
-
+//!
+//! For examples, see the [basic local search solver][crate::examples::tsp::solvers::basic_local_search] and
+//! the [take first local search solver][crate::examples::tsp::solvers::take_first_local_search] for the TSP.
 pub mod local_improver;
 
 use std::sync::Arc;
@@ -40,8 +42,7 @@ use super::Solver;
 ///
 /// For a high-level overview, see the [module documentation][super::local_search] and for examples, see the
 /// [basic local search solver][crate::examples::tsp::solvers::basic_local_search] and
-/// the [take first local search solver][crate::examples::tsp::solvers::take_first_local_search] for
-/// the TSP.
+/// the [take first local search solver][crate::examples::tsp::solvers::take_first_local_search] for the TSP.
 pub struct LocalSearchSolver<S> {
     neighborhood: Arc<dyn Neighborhood<S>>,
     objective: Arc<Objective<S>>,

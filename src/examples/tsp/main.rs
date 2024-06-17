@@ -6,7 +6,7 @@ use rapid_solve::examples::tsp::tsp_tour_with_info::TspTourWithInfo;
 use rapid_solve::examples::tsp::{tsp_instance::TspInstance, tsp_tour::TspTour};
 use rapid_solve::heuristics::Solver;
 
-/// With this main function, you can run the TSP solver with a provided TSPLIB file.
+/// With this main function, you can run a TSP solver with a provided TSPLIB file.
 fn main() {
     let args: Vec<String> = env::args().collect();
     let start_time = std::time::Instant::now();
