@@ -31,7 +31,10 @@ pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<TspTour> {
 #[cfg(test)]
 mod tests {
     use super::build;
-    use crate::examples::tsp::{tsp_instance::TspInstance, tsp_tour::TspTour};
+    use crate::{
+        examples::tsp::{tsp_instance::TspInstance, tsp_tour::TspTour},
+        heuristics::Solver,
+    };
     use std::sync::Arc;
 
     #[test]

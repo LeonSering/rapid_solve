@@ -4,14 +4,9 @@
 //! exploring the neighborhood of the current solution.
 
 pub mod local_improver;
-pub mod neighborhood;
-mod search_result;
-
-pub use neighborhood::Neighborhood;
 
 use std::sync::Arc;
 use std::time as stdtime;
-use std::time::Instant;
 
 use crate::objective::EvaluatedSolution;
 use crate::objective::Objective;
@@ -26,28 +21,10 @@ use local_improver::TakeFirstRecursion;
 #[allow(unused_imports)]
 use local_improver::TakeAnyParallelRecursion;
 
-use search_result::SearchResult;
-use search_result::SearchResult::{Improvement, NoImprovement};
-
-/// function between steps with the following signature:
-/// * iteration counter
-/// * current solution
-/// * previous solution (Option)
-/// * objective
-/// * time that local search started (Option)
-/// * time limit (Option)
-/// * iteration limit (Option)
-type FunctionBetweenSteps<S> = Box<
-    dyn Fn(
-        u32,
-        &EvaluatedSolution<S>,
-        Option<&EvaluatedSolution<S>>,
-        Arc<Objective<S>>,
-        Option<Instant>,
-        Option<stdtime::Duration>,
-        Option<u32>,
-    ),
->;
+use super::common::function_between_steps;
+use super::common::FunctionBetweenSteps;
+use super::common::Neighborhood;
+use super::Solver;
 
 /// A local search solver that uses a [`Neighborhood`] and an [`Objective`] to find a local minimum.
 /// * There are a variety of [`LocalImprovers`][`LocalImprover`] that can be used with this solver.
@@ -59,7 +36,7 @@ pub struct LocalSearchSolver<S> {
     neighborhood: Arc<dyn Neighborhood<S>>,
     objective: Arc<Objective<S>>,
     local_improver: Option<Box<dyn LocalImprover<S>>>,
-    function_between_steps: Option<FunctionBetweenSteps<S>>,
+    function_between_steps: FunctionBetweenSteps<S>,
     time_limit: Option<stdtime::Duration>,
     iteration_limit: Option<u32>,
 }
@@ -72,14 +49,7 @@ impl<S> LocalSearchSolver<S> {
         neighborhood: Arc<dyn Neighborhood<S>>,
         objective: Arc<Objective<S>>,
     ) -> Self {
-        Self {
-            neighborhood,
-            objective,
-            local_improver: None,
-            function_between_steps: None,
-            time_limit: None,
-            iteration_limit: None,
-        }
+        Self::with_options(neighborhood, objective, None, None, None, None)
     }
 
     /// Creates a new [`LocalSearchSolver`] with the given [`Neighborhood`] and [`Objective`].
@@ -106,16 +76,17 @@ impl<S> LocalSearchSolver<S> {
             neighborhood,
             objective,
             local_improver,
-            function_between_steps,
+            function_between_steps: function_between_steps
+                .unwrap_or_else(function_between_steps::get_default),
             time_limit,
             iteration_limit,
         }
     }
 }
 
-impl<S> LocalSearchSolver<S> {
+impl<S> Solver<S> for LocalSearchSolver<S> {
     /// Finds a local minimum by iteratively improving the given initial solution.
-    pub fn solve(&self, initial_solution: S) -> EvaluatedSolution<S> {
+    fn solve(&self, initial_solution: S) -> EvaluatedSolution<S> {
         let start_time = stdtime::Instant::now();
         let init_solution = self.objective.evaluate(initial_solution);
 
@@ -128,69 +99,33 @@ impl<S> LocalSearchSolver<S> {
         self.find_local_optimum(
             init_solution,
             self.local_improver.as_ref().unwrap_or(&minimizer).as_ref(),
-            Some(start_time),
+            start_time,
         )
-        .unwrap()
     }
+}
 
+impl<S> LocalSearchSolver<S> {
     fn find_local_optimum(
         &self,
         start_solution: EvaluatedSolution<S>,
         local_improver: &dyn LocalImprover<S>,
-        start_time: Option<stdtime::Instant>,
-    ) -> SearchResult<S> {
-        let mut result = NoImprovement(start_solution);
+        start_time: stdtime::Instant,
+    ) -> EvaluatedSolution<S> {
+        let mut current_solution = start_solution;
         let mut iteration_counter = 1;
-        while let Some(new_solution) = local_improver.improve(result.as_ref()) {
-            match self.function_between_steps.as_ref() {
-                None => {
-                    println!("\nIteration {}:", iteration_counter,);
-                    self.objective.print_objective_value_with_comparison(
-                        new_solution.objective_value(),
-                        result.as_ref().objective_value(),
-                    );
-                    if let Some(start_time) = start_time {
-                        println!(
-                            "elapsed time for local search: {:0.2}sec",
-                            stdtime::Instant::now()
-                                .duration_since(start_time)
-                                .as_secs_f32(),
-                        );
-                    }
-                    if self.time_limit.is_some() || self.iteration_limit.is_some() {
-                        println!(
-                            "({}{}{})",
-                            match self.iteration_limit {
-                                Some(iteration_limit) =>
-                                    format!("iteration limit: {}", iteration_limit),
-                                None => "".to_string(),
-                            },
-                            if self.time_limit.is_some() && self.iteration_limit.is_some() {
-                                ", "
-                            } else {
-                                ""
-                            },
-                            match self.time_limit {
-                                Some(time_limit) =>
-                                    format!("time limit: {:0.2}sec", time_limit.as_secs_f32()),
-                                None => "".to_string(),
-                            },
-                        );
-                    }
-                }
-                Some(f) => f(
-                    iteration_counter,
-                    &new_solution,
-                    Some(result.as_ref()),
-                    self.objective.clone(),
-                    start_time,
-                    self.time_limit,
-                    self.iteration_limit,
-                ),
-            }
-            result = Improvement(new_solution);
+        while let Some(new_solution) = local_improver.improve(&current_solution) {
+            (self.function_between_steps)(
+                iteration_counter,
+                &new_solution,
+                Some(&current_solution),
+                self.objective.clone(),
+                Some(start_time),
+                self.time_limit,
+                self.iteration_limit,
+            );
+            current_solution = new_solution;
             if let Some(time_limit) = self.time_limit {
-                if stdtime::Instant::now().duration_since(start_time.unwrap()) > time_limit {
+                if stdtime::Instant::now().duration_since(start_time) > time_limit {
                     println!("Time limit reached.");
                     break;
                 }
@@ -203,6 +138,6 @@ impl<S> LocalSearchSolver<S> {
             }
             iteration_counter += 1;
         }
-        result
+        current_solution
     }
 }

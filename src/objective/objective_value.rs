@@ -2,12 +2,13 @@
 //! solution.
 use std::{
     cmp::Ordering,
-    ops::{Add, Sub},
+    ops::{Add, Mul, Sub},
     slice::Iter,
 };
 
-use super::base_value::BaseValue;
+use super::{base_value::BaseValue, Coefficient};
 
+// TODO: Implement Copy
 /// The hierarchical objective value of a solution, which is a vector of
 /// [`BaseValues`][`BaseValue`].
 #[derive(Clone, Debug)]
@@ -80,6 +81,34 @@ impl Sub for ObjectiveValue {
                 .into_iter()
                 .zip(rhs.objective_vector)
                 .map(|(value, other_value)| value - other_value)
+                .collect(),
+        )
+    }
+}
+
+impl Mul<f32> for ObjectiveValue {
+    type Output = Self;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        let coefficient = Coefficient::Float(rhs);
+        ObjectiveValue::new(
+            self.objective_vector
+                .into_iter()
+                .map(|value| coefficient * value)
+                .collect(),
+        )
+    }
+}
+
+impl Mul<i32> for ObjectiveValue {
+    type Output = Self;
+
+    fn mul(self, rhs: i32) -> Self::Output {
+        let coefficient = Coefficient::Integer(rhs);
+        ObjectiveValue::new(
+            self.objective_vector
+                .into_iter()
+                .map(|value| coefficient * value)
                 .collect(),
         )
     }

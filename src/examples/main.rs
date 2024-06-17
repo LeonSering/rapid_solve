@@ -3,6 +3,7 @@ use std::sync::Arc;
 
 use rapid_solve::examples::tsp::solvers;
 use rapid_solve::examples::tsp::{tsp_instance::TspInstance, tsp_tour::TspTour};
+use rapid_solve::heuristics::Solver;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -15,9 +16,14 @@ fn main() {
     let tsp_instance = Arc::new(TspInstance::from_tsplib_file(&args[2]).unwrap());
     let tour = TspTour::from_instance_nearest_neighbor(tsp_instance.clone());
 
-    let solver = match args[1].as_str() {
-        "basic" => solvers::basic_three_opt_local_search::build(tsp_instance),
-        "take_first" => solvers::take_first_three_opt_local_search::build(tsp_instance),
+    let solver: Box<dyn Solver<TspTour>> = match args[1].as_str() {
+        "basic_local_search" => {
+            Box::new(solvers::basic_three_opt_local_search::build(tsp_instance))
+        }
+        "take_first_local_search" => Box::new(solvers::take_first_three_opt_local_search::build(
+            tsp_instance,
+        )),
+        "threshold_accepting" => Box::new(solvers::threshold_accepting::build(tsp_instance)),
         _ => {
             eprintln!("Unknown solver: {}", args[1]);
             print_usage(args[0].as_str());

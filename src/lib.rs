@@ -132,7 +132,7 @@
 //! #         Solution(new_values)
 //! #     }
 //! # }
-//! use rapid_solve::heuristics::local_search::Neighborhood;
+//! use rapid_solve::heuristics::common::Neighborhood;
 //!
 //! struct ChangeEntryThenSwapNeighborhood;
 //!
@@ -207,7 +207,7 @@
 //! #     }
 //! # }
 //! #
-//! # use rapid_solve::heuristics::local_search::Neighborhood;
+//! # use rapid_solve::heuristics::common::Neighborhood;
 //! #
 //! # struct ChangeEntryThenSwapNeighborhood;
 //! #

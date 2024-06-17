@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use crate::{
     examples::tsp::{tsp_instance::TspInstance, tsp_tour::TspTour},
-    heuristics::local_search::Neighborhood,
+    heuristics::common::Neighborhood,
 };
 
 /// Given a [`TspTour`], this [`Neighborhood`] generates all tours that can be obtained by applying a

@@ -13,14 +13,16 @@ use std::sync::Arc;
 pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<TspTour> {
     let objective: Arc<Objective<TspTour>> = Arc::new(build_tsp_objective());
     let neighborhood = Arc::new(ThreeOptNeighborhood::new(tsp_instance));
-    // let local_improver = Box::new(TakeFirst::new(neighborhood.clone(), objective.clone()));
     LocalSearchSolver::initialize(neighborhood, objective)
 }
 
 #[cfg(test)]
 mod tests {
     use super::build;
-    use crate::examples::tsp::{tsp_instance::TspInstance, tsp_tour::TspTour};
+    use crate::{
+        examples::tsp::{tsp_instance::TspInstance, tsp_tour::TspTour},
+        heuristics::Solver,
+    };
     use std::sync::Arc;
 
     #[test]
