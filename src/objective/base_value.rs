@@ -16,10 +16,15 @@ const TOLERANCE: f64 = 0.0001;
 /// * `Zero` is the neutral element for addition.
 #[derive(Debug, Clone, Copy)]
 pub enum BaseValue {
+    /// An integer value.
     Integer(i64),
+    /// A floating point value.
     Float(f64),
+    /// A [`Duration`] value (from the RapidTime crate).
     Duration(Duration), // cannot handle negative durations
+    /// Represents the maximum value.
     Maximum,
+    /// Represents the neutral element for addition.
     Zero,
 }
 

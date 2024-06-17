@@ -11,7 +11,9 @@ use super::base_value::BaseValue;
 /// [`Integer`][`Coefficient::Integer`] or a [`Float`][`Coefficient::Float`].
 #[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
 pub enum Coefficient {
+    /// An integer coefficient.
     Integer(i32),
+    /// A float coefficient.
     Float(f32),
 }
 

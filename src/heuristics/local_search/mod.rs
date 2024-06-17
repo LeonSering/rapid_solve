@@ -1,8 +1,12 @@
-//! This module contains the [`LocalSearchSolver`] and several [`local_improvers`][`local_improver`] (neighborhood
-//! exploration stategies).
-//! The [local search heuristic](https://en.wikipedia.org/wiki/Local_search_(optimization))
-//! starts with an initial solution and iteratively improves it by
-//! exploring the neighborhood of the current solution.
+//! This module contains the [`LocalSearchSolver`] implementing the
+//! [local search heuristic](https://en.wikipedia.org/wiki/Local_search_(optimization)).
+//! There are several [`local_improvers`][`local_improver`] (neighborhood exploration stategies)
+//! to choose from.
+//! * Starts with an initial solution and iteratively improves it by exploring the neighborhood
+//! of the current solution.
+//! * The search stops after a certain number of iterations, after a certain time limit, or if no
+//! improvement is found in the neighborhood (local minimum is reached).
+//! * The last solution (which is the best found) is returned.
 
 pub mod local_improver;
 
@@ -22,7 +26,7 @@ use local_improver::TakeFirstRecursion;
 #[allow(unused_imports)]
 use local_improver::TakeAnyParallelRecursion;
 
-use super::common::function_between_steps;
+use super::common::default_function_between_steps;
 use super::common::FunctionBetweenSteps;
 use super::common::Neighborhood;
 use super::Solver;
@@ -33,6 +37,11 @@ use super::Solver;
 /// * The deafult [`LocalImprover`] (if `None`) is [`Minimizer`].
 /// * The default `function_between_steps` (if `None`) is printing the iteration number, the objective value
 /// (in comparison the the previous objective value) and the time elapsed since the start.
+///
+/// For a high-level overview, see the [module documentation][super::local_search] and for examples, see the
+/// [basic local search solver][crate::examples::tsp::solvers::basic_local_search] and
+/// the [take first local search solver][crate::examples::tsp::solvers::take_first_local_search] for
+/// the TSP.
 pub struct LocalSearchSolver<S> {
     neighborhood: Arc<dyn Neighborhood<S>>,
     objective: Arc<Objective<S>>,
@@ -78,7 +87,7 @@ impl<S> LocalSearchSolver<S> {
             objective,
             local_improver,
             function_between_steps: function_between_steps
-                .unwrap_or(function_between_steps::default()),
+                .unwrap_or(default_function_between_steps()),
             time_limit,
             iteration_limit,
         }

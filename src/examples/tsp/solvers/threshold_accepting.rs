@@ -1,5 +1,5 @@
-//! This module contains the implementation of the [`ThresholdAcceptingSolver`] for the TSP
-//! problem.
+//! This module contains the implementation of the [`ThresholdAcceptingSolver`] for the TSP. See
+//! the [build] function for details.
 use std::sync::Arc;
 
 use crate::{
@@ -15,14 +15,15 @@ use crate::{
     objective::{BaseValue, Objective, ObjectiveValue},
 };
 
-/// Builds a [`ThresholdAcceptingSolver`] for the TSP problem.
-/// The initial threshold is set to the average distance between two nodes.
-/// The neighborhood is the 3-opt neighborhood, i.e., the neighborhood that consists of
+/// Builds a [`ThresholdAcceptingSolver`] for the TSP.
+/// * The neighborhood is the 3-opt neighborhood, i.e., the neighborhood that consists of
 /// all tours that can be obtained by applying the 3-opt operation.
-/// Since starting each neighborhood with the index (0, 1, 2) leads to back and forth moves,
+/// * Since starting each neighborhood with the index (0, 1, 2) leads to back and forth moves,
 /// the [`TspTour`][`super::super::tsp_tour::TspTour`] is wrapped in a [`TspTourWithInfo`] to store the first index of the last move.
 /// The next move then starts with the first index one after the first index of the previous move, which
 /// means that the backwards move appears very late in the neighborhood iterator.
+/// * The initial threshold is set to the average distance between two nodes.
+/// * The threshold is reduced by 0.9 whenever a worse neighbor is accepted.
 pub fn build(tsp_instance: Arc<TspInstance>) -> ThresholdAcceptingSolver<TspTourWithInfo> {
     let node_count = tsp_instance.get_number_of_nodes();
     let average_distance: Distance = (0..node_count)
@@ -42,14 +43,13 @@ pub fn build(tsp_instance: Arc<TspInstance>) -> ThresholdAcceptingSolver<TspTour
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
-
     use crate::{
         examples::tsp::{
             tsp_instance::TspInstance, tsp_tour::TspTour, tsp_tour_with_info::TspTourWithInfo,
         },
         heuristics::Solver,
     };
+    use std::sync::Arc;
 
     use super::build;
 

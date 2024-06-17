@@ -1,5 +1,5 @@
-//! In stead of looking at all neighbors and pick the best one, we take the first improving
-//! neighbor. As the [`neighborhood`][`super::super::neighborhood`] is searched in parallel this solver is not deterministic.
+//! The local search implementation takes the first improving neighbor, instead of looking at all
+//! neighbors, see the [build] function for details.
 use super::super::{objective::build_tsp_objective, tsp_instance::TspInstance, tsp_tour::TspTour};
 use crate::examples::tsp::neighborhood::ThreeOptNeighborhood;
 use crate::heuristics::local_search::local_improver::TakeFirstRecursion;
@@ -8,7 +8,14 @@ use std::sync::Arc;
 
 /// Builds a [`LocalSearchSolver`] with [`TakeFirstRecursion`] as
 /// [`LocalImprover`][`crate::heuristics::local_search::local_improver::LocalImprover`].
-/// The time limit is set to 10 minutes. There is no iteration limit.
+/// * The neighborhood is the 3-opt neighborhood, i.e., the neighborhood that consists of
+/// all tours that can be obtained by applying the 3-opt operation.
+/// * The local improver is set to [`TakeFirstRecursion`], which takes the first improving
+/// neighbor.
+/// * If no improving neighbor is found, the best 5 neighbors are considered in recursion.
+/// * The recursion depth is set to 2. The time limit is set to 10 minutes. There is no iteration
+/// limit.
+/// * The time limit is set to 10 minutes. There is no iteration limit.
 pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<TspTour> {
     let objective: Arc<Objective<TspTour>> = Arc::new(build_tsp_objective());
     let neighborhood = Arc::new(ThreeOptNeighborhood::new(tsp_instance));
@@ -50,7 +57,8 @@ mod tests {
 
         let solver = build(tsp_instance.clone());
 
-        solver.solve(tour);
+        let local_opt_tour = solver.solve(tour);
+        assert_eq!(local_opt_tour.solution().get_nodes(), &vec![0, 2, 3, 1]);
     }
 
     #[test]

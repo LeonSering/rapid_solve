@@ -1,4 +1,4 @@
-//! This module contains the [`Objective`] for the TSP problem.
+//! This module contains the [`Objective`] for the TSP.
 use crate::objective::{BaseValue, Indicator, Objective};
 
 use super::tsp_tour::TspTour;

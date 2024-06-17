@@ -1,17 +1,17 @@
-//! This module contains the [`ThresholdAcceptingSolver`].
-//! The [threshold accpeting heuristic](https://doi.org/10.1016%2F0021-9991%2890%2990201-B)
-//! starts with an initial solution and iteratively considers neighbors.
-//! An improvement is always accepted, but a worse neighbor is also accepted if the difference in objective value
+//! This module contains the [`ThresholdAcceptingSolver`] implementing the
+//! [threshold accpeting heuristic](https://doi.org/10.1016%2F0021-9991%2890%2990201-B).
+//! * Starts with an initial solution and iteratively considers neighbors.
+//! * An improvement is always accepted, but a worse neighbor is also accepted if the difference in objective value
 //! is below a given threshold.
-//! After every step, in which a worse neighbor is accepted, the threshold is reduced by a factor.
-//! The search stops after a certain number of iterations or after a certain time limit.
-//! The best solution seen during this process is returned.
-//!
-//! The threshold accepting heuristic is similar to the [simulated annealing
+//! * After every step, in which a worse neighbor is accepted, the threshold is reduced by a factor.
+//! * The search stops after a certain number of iterations, after a certain time limit, or if the
+//! whole neighborhood is explored without any acceptance.
+//! * The best solution seen during this process is returned.
+//! * The threshold accepting heuristic is similar to the [simulated annealing
 //! heuristic][super::simulated_annealing], but deterministic and without
 //! computing the acceptance probability (which often contains costly computations of exponential functions).
 
-use super::common::{function_between_steps, FunctionBetweenSteps, Neighborhood};
+use super::common::{default_function_between_steps, FunctionBetweenSteps, Neighborhood};
 use super::Solver;
 use crate::objective::{EvaluatedSolution, Objective, ObjectiveValue};
 use std::sync::Arc;
@@ -21,14 +21,19 @@ use std::time as stdtime;
 pub type ScalingFactor = f32;
 
 /// The threshold accepting solver uses a [`Neighborhood`], an [`Objective`], an
-/// `initial_threshold` and a `threshold_factor` (between 0 and 1, e.g., 0.9) to find a good solution,
+/// `initial_threshold` ([`ObjectiveValue`]) and a `threshold_factor`
+/// (`f32` between 0 and 1, e.g., 0.9) to find a good solution,
 /// while occasionally accepting worse solutions with the hope to not get trapped within a bad local minimum.
+/// * Whenever a worse neighbor is accepted, the `current_threshold` is reduced by the `threshold_factor`.
 /// * The `function_between_steps` is executed after each improvement step.
 /// * The default `function_between_steps` (if `None`) is printing the iteration number, the objective value
 /// (in comparison the the previous objective value) and the time elapsed since the start.
 /// * The solver stops after a certain number of iterations or after a certain time limit.
 /// * If `max_iterations` and `max_time` is `None`, the solver runs until a whole neighborhood is explored
 /// without any accpetance.
+///
+/// For a high-level overview, see the [module documentation][super::threshold_accepting] and for an example, see the
+/// [threshold accepting solver for the TSP][crate::examples::tsp::solvers::threshold_accepting].
 pub struct ThresholdAcceptingSolver<S> {
     neighborhood: Arc<dyn Neighborhood<S>>,
     objective: Arc<Objective<S>>,
@@ -87,7 +92,7 @@ impl<S> ThresholdAcceptingSolver<S> {
             initial_threshold,
             threshold_factor,
             function_between_steps: function_between_steps
-                .unwrap_or(function_between_steps::default()),
+                .unwrap_or(default_function_between_steps()),
             time_limit,
             iteration_limit,
         }

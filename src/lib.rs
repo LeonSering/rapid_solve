@@ -1,9 +1,10 @@
+#![warn(missing_docs)]
 //! This library provides a metaheuristic framework for solving combinatorial optimization
 //! problems.
 //!
 //! # Overview
 //! ### Metaheuristics
-//! The following metaheuristics are included:
+//! The following [metaheuristics][heuristics] are included:
 //! - [local search][heuristics::local_search] (with several neighborhood
 //! exploration strategies)
 //! - [threshold accepting][heuristics::threshold_accepting]

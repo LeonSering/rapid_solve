@@ -6,12 +6,12 @@
 //! solution with an [`ObjectiveValue`] (a vector of [`BaseValues`][`BaseValue`], one per level) by wrapping
 //! it into an [`EvaluatedSolution`].
 
-pub mod base_value;
-pub mod coefficient;
-pub mod evaluated_solution;
-pub mod indicator;
-pub mod linear_combination;
-pub mod objective_value;
+mod base_value;
+mod coefficient;
+mod evaluated_solution;
+mod indicator;
+mod linear_combination;
+mod objective_value;
 #[cfg(test)]
 mod tests;
 

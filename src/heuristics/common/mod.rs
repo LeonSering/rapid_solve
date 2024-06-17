@@ -3,7 +3,8 @@
 //! of a solution, and the [`FunctionBetweenSteps`] type, which is used to define the function
 //! that is executed between steps of the solver.
 
-pub mod function_between_steps;
-pub mod neighborhood;
+mod function_between_steps;
+mod neighborhood;
+pub use function_between_steps::default_function_between_steps;
 pub use function_between_steps::FunctionBetweenSteps;
 pub use neighborhood::Neighborhood;

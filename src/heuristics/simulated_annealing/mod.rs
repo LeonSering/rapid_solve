@@ -1,3 +1,20 @@
+//! This module contains the [`SimulatedAnnealingSolver`] implementing the
+//! [simulated annealing heuristic](https://en.wikipedia.org/wiki/Simulated_annealing).
+//! * Starts with an initial solution and iteratively considers neighbors.
+//! * An improvement is always accepted, but a worse neighbor is also accepted with a certain
+//! probability.
+//! * This probability is based on the difference in objective value and the current
+//! temperature.
+//! * The temperature is reduced whenever a worse neighbor is accepted.
+//! * The search stops after a certain number of iterations, or after a certain time limit, or if the
+//! whole neighborhood is explored without any acceptance.
+//! * The best solution seen during this process is returned.
+//! * The acceptance probability usualy depends exponentially on the difference in objective value
+//! and the current temperature, i.e., e<sup>-∆f/T</sup>, where ∆f is the difference in
+//! objective value and T is the current temperature.
+//! * The simulated annealing heuristic is similar to the deterministic [threshold accepting
+//! heuristic][super::threshold_accepting], which performs similar, but does not require
+//! computing the acceptance probability.
 use std::{sync::Arc, time as stdtime};
 
 use rand::rngs::StdRng;
@@ -7,18 +24,43 @@ use rand::SeedableRng;
 use crate::objective::ObjectiveValue;
 use crate::objective::{EvaluatedSolution, Objective};
 
+use super::common::default_function_between_steps;
 use super::{
-    common::{function_between_steps, FunctionBetweenSteps, Neighborhood},
+    common::{FunctionBetweenSteps, Neighborhood},
     Solver,
 };
 
+/// Type for the temperature, which should be in the magnitude of the objective values in the
+/// beginning.
 pub type Temperature = f64;
+/// Type for the acceptance probability.
 pub type Probability = f64;
+/// Type for the `cooling_factor`, which is a value between 0 and 1 (e.g., 0.9).
 pub type ScalingFactor = f64;
 
-type AcceptanceProbabilityFunction =
+/// Type for the `acceptance_probability_function`.
+pub type AcceptanceProbabilityFunction =
     Box<dyn Fn(&ObjectiveValue, &ObjectiveValue, Temperature) -> Probability>;
 
+/// A simulated annealing solver that uses a [`Neighborhood`] and an [`Objective`], an
+/// `initial_temperature` (`f32` in the magnitute of the objective values),
+/// a `cooling_factor` (`f32`between 0 and 1, e.g., 0.9), and an
+/// [`AcceptanceProbabilityFunction`] to find a good solution.
+/// * The [`AcceptanceProbabilityFunction`] is a function that takes the current objective value,
+/// the objective value of a neighbor, and the current temperature and returns the accpetance probability
+/// (which should be 1 if the neighbor is and improvement and it should decrease with
+/// increasing difference in objective value and decreasing temperature). Typical it is an
+/// exponential function, e.g., e<sup>-∆f/T</sup>, where ∆f is the difference in objective value
+/// and T is the current temperature.
+/// * Whenever a worse neighbor is accepted, the `current_temperature` is reduced by the `cooling_factor`.
+/// * The `function_between_steps` is executed after each improvement step.
+/// * The default `function_between_steps` (if `None`) is printing the iteration number, the
+/// objective value (in comparison the the previous objective value) and the time elapsed since the start.
+/// * The solver stops after a certain number of iterations or after a certain time limit.
+/// * If `iteration_limit` and `time_limit` is `None`, the solver runs until a whole neighborhood is explored
+/// without any acceptance.
+/// For a high-level overview, see the [module documentation][super::threshold_accepting] and for an example, see the
+/// [threshold accepting solver for the TSP][crate::examples::tsp::solvers::threshold_accepting].
 pub struct SimulatedAnnealingSolver<S> {
     neighborhood: Arc<dyn Neighborhood<S>>,
     objective: Arc<Objective<S>>,
@@ -32,6 +74,9 @@ pub struct SimulatedAnnealingSolver<S> {
 }
 
 impl<S> SimulatedAnnealingSolver<S> {
+    /// Creates a new [`SimulatedAnnealingSolver`] with the given [`Neighborhood`], [`Objective`],
+    /// `initial_temperature`, `cooling_factor`, and [`AcceptanceProbabilityFunction`].
+    /// * A `random_seed` can be provided to make the search reproducible.
     pub fn initialize(
         neighborhood: Arc<dyn Neighborhood<S>>,
         objective: Arc<Objective<S>>,
@@ -53,6 +98,20 @@ impl<S> SimulatedAnnealingSolver<S> {
         )
     }
 
+    /// Creates a new [`SimulatedAnnealingSolver`] with the given [`Neighborhood`], [`Objective`],
+    /// `initial_temperature`, `cooling_factor`, and [`AcceptanceProbabilityFunction`].
+    /// * `random_seed` can be provided to make the search reproducible.
+    /// * `function_between_steps` is executed after each improvement step. If `None`, the default
+    /// is printing the iteration number, the objective value (in comparison the the previous
+    /// objective value) and the time elapsed since the start.
+    /// * `time_limit` is the maximum time allowed for the local search to start a new iteration.
+    /// The last iteration is allowed to finish. If `None`, there is no time limit.
+    /// * `iteration_limit` is the maximum number of iterations allowed for the local search. If
+    /// `None`, there is no iteration limit.
+    /// * If `max_iterations` and `max_time` is `None`, the solver runs until a whole neighborhood
+    /// is explored without any accpetance.
+    /// * If `max_iterations` and `max_time` are both set, the search stops when either limit is
+    /// reached first.
     #[allow(clippy::too_many_arguments)]
     pub fn with_options(
         neighborhood: Arc<dyn Neighborhood<S>>,
@@ -72,7 +131,7 @@ impl<S> SimulatedAnnealingSolver<S> {
             cooling_factor,
             acceptance_probability_function,
             function_between_steps: function_between_steps
-                .unwrap_or(function_between_steps::default()),
+                .unwrap_or(default_function_between_steps()),
             time_limit,
             iteration_limit,
             random_seed,

@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 /// Builds a local search solver with the default
 /// [`LocalImprover`][`crate::heuristics::local_search::local_improver::LocalImprover`]
-/// [`Minimizer`][`crate::heuristics::local_search::local_improver::minimizer::Minimizer`].
+/// [`Minimizer`][`crate::heuristics::local_search::local_improver::Minimizer`].
 pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<TspTour> {
     let objective: Arc<Objective<TspTour>> = Arc::new(build_tsp_objective());
     let neighborhood = Arc::new(ThreeOptNeighborhood::new(tsp_instance));

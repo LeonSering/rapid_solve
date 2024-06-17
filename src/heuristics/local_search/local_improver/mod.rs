@@ -1,11 +1,11 @@
 //! This module contains several [`LocalImprover`] implementations, which define the strategy to
 //! explore the neighborhood of a solution in each iteration of the
 //! [`LocalSearchSolver`][super::LocalSearchSolver].
-pub mod minimizer;
-pub mod parallel_minimizer;
-pub mod take_any_parallel_recursion;
-pub mod take_first;
-pub mod take_first_recursion;
+mod minimizer;
+mod parallel_minimizer;
+mod take_any_parallel_recursion;
+mod take_first;
+mod take_first_recursion;
 
 pub use minimizer::Minimizer;
 pub use parallel_minimizer::ParallelMinimizer;

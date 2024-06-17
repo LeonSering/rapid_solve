@@ -6,7 +6,7 @@ use std::time as stdtime;
 use std::time::Instant;
 
 use crate::objective::{EvaluatedSolution, Objective};
-/// function between steps with the following signature:
+/// Type for a function that is executed between steps.
 /// * iteration counter
 /// * current solution
 /// * previous solution (Option)
@@ -26,7 +26,11 @@ pub type FunctionBetweenSteps<S> = Box<
     ),
 >;
 
-pub fn default<S>() -> FunctionBetweenSteps<S> {
+/// Default function between steps that prints the iteration number, the objective value of the
+/// current solution, the comparison of the objective value of the current solution with the
+/// previous solution (if it exists), the elapsed time for the local search, and the time and
+/// iteration limits (if they exist).
+pub fn default_function_between_steps<S>() -> FunctionBetweenSteps<S> {
     Box::new(
         |iteration,
          current_solution,
