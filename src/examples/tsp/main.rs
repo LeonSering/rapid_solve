@@ -45,6 +45,10 @@ fn main() {
                 simulated_annealing_solver.solve(TspTourWithInfo::new(initial_tour, 0));
             tsp_tour_with_info.unwrap().unwrap()
         }
+        "tabu_search" => {
+            let tabu_search_solver = Box::new(solvers::tabu_search::build(tsp_instance));
+            tabu_search_solver.solve(initial_tour).unwrap()
+        }
         _ => {
             eprintln!("Unknown solver: {}", args[1]);
             print_usage(args[0].as_str());
