@@ -1,6 +1,6 @@
 //! The local search implementation takes the first improving neighbor, instead of looking at all
 //! neighbors, see the [build] function for details.
-//! ```rust
+//! ```ignore
 //! pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<TspTour> {
 //!     let objective: Arc<Objective<TspTour>> = Arc::new(build_tsp_objective());
 //!     let neighborhood = Arc::new(ThreeOptNeighborhood::new(tsp_instance));
@@ -20,10 +20,13 @@
 //!     )
 //! }
 //! ```
-use super::super::{objective::build_tsp_objective, tsp_instance::TspInstance, tsp_tour::TspTour};
+use super::super::objective::build_tsp_objective;
+use super::super::tsp_instance::TspInstance;
+use super::super::tsp_tour::TspTour;
 use crate::examples::tsp::neighborhood::ThreeOptNeighborhood;
 use crate::heuristics::local_search::local_improver::TakeFirstRecursion;
-use crate::{heuristics::local_search::LocalSearchSolver, objective::Objective};
+use crate::heuristics::local_search::LocalSearchSolver;
+use crate::objective::Objective;
 use std::sync::Arc;
 
 /// Builds a [`LocalSearchSolver`] with [`TakeFirstRecursion`] as

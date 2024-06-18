@@ -1,6 +1,6 @@
 //! This module contains the implementation of the [`ThresholdAcceptingSolver`] for the TSP. See
 //! the [build] function for details.
-//! ```rust
+//! ```ignore
 //! pub fn build(tsp_instance: Arc<TspInstance>) -> ThresholdAcceptingSolver<TspTourWithInfo> {
 //!     let node_count = tsp_instance.get_number_of_nodes();
 //!     let average_distance: Distance = (0..node_count)
@@ -18,20 +18,14 @@
 //!     ThresholdAcceptingSolver::initialize(neighborhood, objective, initial_threshold, 0.9)
 //! }
 //! ```
+use crate::examples::tsp::tsp_instance::TspInstance;
+use crate::examples::tsp::tsp_tour_with_info::neighborhood::RotatedThreeOptNeighborhood;
+use crate::examples::tsp::tsp_tour_with_info::objective::build_objective_for_tsp_tour_with_info;
+use crate::examples::tsp::tsp_tour_with_info::TspTourWithInfo;
+use crate::examples::tsp::Distance;
+use crate::heuristics::threshold_accepting::ThresholdAcceptingSolver;
+use crate::objective::{BaseValue, Objective, ObjectiveValue};
 use std::sync::Arc;
-
-use crate::{
-    examples::tsp::{
-        tsp_instance::TspInstance,
-        tsp_tour_with_info::{
-            neighborhood::RotatedThreeOptNeighborhood,
-            objective::build_objective_for_tsp_tour_with_info, TspTourWithInfo,
-        },
-        Distance,
-    },
-    heuristics::threshold_accepting::ThresholdAcceptingSolver,
-    objective::{BaseValue, Objective, ObjectiveValue},
-};
 
 /// Builds a [`ThresholdAcceptingSolver`] for the TSP.
 /// * The neighborhood is the 3-opt neighborhood, i.e., the neighborhood that consists of

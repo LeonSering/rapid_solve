@@ -99,30 +99,14 @@ impl<S> Solver<S> for LocalSearchSolver<S> {
     /// Finds a local minimum by iteratively improving the given initial solution.
     fn solve(&self, initial_solution: S) -> EvaluatedSolution<S> {
         let start_time = stdtime::Instant::now();
-        let init_solution = self.objective.evaluate(initial_solution);
 
-        // default local improver is Minimizer
         let minimizer: Box<dyn LocalImprover<S>> = Box::new(Minimizer::new(
             self.neighborhood.clone(),
             self.objective.clone(),
         ));
+        let local_improver = self.local_improver.as_ref().unwrap_or(&minimizer);
 
-        self.find_local_optimum(
-            init_solution,
-            self.local_improver.as_ref().unwrap_or(&minimizer).as_ref(),
-            start_time,
-        )
-    }
-}
-
-impl<S> LocalSearchSolver<S> {
-    fn find_local_optimum(
-        &self,
-        start_solution: EvaluatedSolution<S>,
-        local_improver: &dyn LocalImprover<S>,
-        start_time: stdtime::Instant,
-    ) -> EvaluatedSolution<S> {
-        let mut current_solution = start_solution;
+        let mut current_solution = self.objective.evaluate(initial_solution);
         let mut iteration_counter = 1;
         while let Some(new_solution) = local_improver.improve(&current_solution) {
             (self.function_between_steps)(
