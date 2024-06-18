@@ -9,6 +9,7 @@
 //! exploration strategies)
 //! - [threshold accepting][heuristics::threshold_accepting]
 //! - [simulated annealing][heuristics::simulated_annealing]
+//! - [tabu search][heuristics::tabu_search]
 //!
 //! ### Hierarchical Objective
 //! The framework supports [hierarchical objective][objective], i.e., objectives

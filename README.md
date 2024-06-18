@@ -13,6 +13,7 @@ The following metaheuristics are included:
   exploration strategies)
 - [threshold accepting](https://docs.rs/rapid_solve/heuristics/threshold_accepting/index.html)
 - [simulated annealing](https://docs.rs/rapid_solve/heuristics/simulated_annealing/index.html)
+- [tabu search](https://docs.rs/rapid_solve/heuristics/tabu_search/index.html)
 
 ### Hierarchical Objective
 
