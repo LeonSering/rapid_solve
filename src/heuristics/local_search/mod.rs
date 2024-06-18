@@ -43,15 +43,15 @@ use super::Solver;
 /// For a high-level overview, see the [module documentation][super::local_search] and for examples, see the
 /// [basic local search solver][crate::examples::tsp::solvers::basic_local_search] and
 /// the [take first local search solver][crate::examples::tsp::solvers::take_first_local_search] for the TSP.
-pub struct LocalSearchSolver<'a, S> {
+pub struct LocalSearchSolver<S> {
     objective: Arc<Objective<S>>,
-    local_improver: Box<dyn LocalImprover<S> + 'a>,
+    local_improver: Box<dyn LocalImprover<S>>,
     function_between_steps: FunctionBetweenSteps<S>,
     time_limit: Option<stdtime::Duration>,
     iteration_limit: Option<u32>,
 }
 
-impl<'a, S: 'a> LocalSearchSolver<'a, S> {
+impl<S: 'static> LocalSearchSolver<S> {
     /// Creates a new [`LocalSearchSolver`] with the given [`Neighborhood`] and [`Objective`].
     /// Uses the default [`LocalImprover`] ([`Minimizer`]) and the default `function_between_steps` (print
     /// iteration number, objective value, time elapsed).
@@ -77,7 +77,7 @@ impl<'a, S: 'a> LocalSearchSolver<'a, S> {
     pub fn with_options(
         neighborhood: Arc<dyn Neighborhood<S>>,
         objective: Arc<Objective<S>>,
-        local_improver: Option<Box<dyn LocalImprover<S> + 'a>>,
+        local_improver: Option<Box<dyn LocalImprover<S>>>,
         function_between_steps: Option<FunctionBetweenSteps<S>>,
         time_limit: Option<stdtime::Duration>,
         iteration_limit: Option<u32>,
@@ -85,7 +85,7 @@ impl<'a, S: 'a> LocalSearchSolver<'a, S> {
         let local_improver = match local_improver {
             Some(local_improver) => local_improver,
             None => Box::new(Minimizer::new(neighborhood, objective.clone()))
-                as Box<dyn LocalImprover<S> + 'a>,
+                as Box<dyn LocalImprover<S>>,
         };
         Self {
             objective,
@@ -98,7 +98,7 @@ impl<'a, S: 'a> LocalSearchSolver<'a, S> {
     }
 }
 
-impl<'a, S> Solver<S> for LocalSearchSolver<'a, S> {
+impl<S> Solver<S> for LocalSearchSolver<S> {
     /// Finds a local minimum by iteratively improving the given initial solution.
     fn solve(&self, initial_solution: S) -> EvaluatedSolution<S> {
         let start_time = stdtime::Instant::now();
