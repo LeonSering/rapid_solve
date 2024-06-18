@@ -39,7 +39,7 @@ use std::sync::Arc;
 /// * The recursion depth is set to 2. The time limit is set to 10 minutes. There is no iteration
 /// limit.
 /// * The time limit is set to 10 minutes. There is no iteration limit.
-pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<TspTour> {
+pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<'static, TspTour> {
     let objective: Arc<Objective<TspTour>> = Arc::new(build_tsp_objective());
     let neighborhood = Arc::new(ThreeOptNeighborhood::new(tsp_instance));
     let local_improver = Box::new(TakeFirstRecursion::new(

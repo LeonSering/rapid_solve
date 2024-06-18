@@ -43,16 +43,15 @@ use super::Solver;
 /// For a high-level overview, see the [module documentation][super::local_search] and for examples, see the
 /// [basic local search solver][crate::examples::tsp::solvers::basic_local_search] and
 /// the [take first local search solver][crate::examples::tsp::solvers::take_first_local_search] for the TSP.
-pub struct LocalSearchSolver<S> {
-    neighborhood: Arc<dyn Neighborhood<S>>,
+pub struct LocalSearchSolver<'a, S> {
     objective: Arc<Objective<S>>,
-    local_improver: Option<Box<dyn LocalImprover<S>>>,
+    local_improver: Box<dyn LocalImprover<S> + 'a>,
     function_between_steps: FunctionBetweenSteps<S>,
     time_limit: Option<stdtime::Duration>,
     iteration_limit: Option<u32>,
 }
 
-impl<S> LocalSearchSolver<S> {
+impl<'a, S: 'a> LocalSearchSolver<'a, S> {
     /// Creates a new [`LocalSearchSolver`] with the given [`Neighborhood`] and [`Objective`].
     /// Uses the default [`LocalImprover`] ([`Minimizer`]) and the default `function_between_steps` (print
     /// iteration number, objective value, time elapsed).
@@ -78,13 +77,17 @@ impl<S> LocalSearchSolver<S> {
     pub fn with_options(
         neighborhood: Arc<dyn Neighborhood<S>>,
         objective: Arc<Objective<S>>,
-        local_improver: Option<Box<dyn LocalImprover<S>>>,
+        local_improver: Option<Box<dyn LocalImprover<S> + 'a>>,
         function_between_steps: Option<FunctionBetweenSteps<S>>,
         time_limit: Option<stdtime::Duration>,
         iteration_limit: Option<u32>,
     ) -> Self {
+        let local_improver = match local_improver {
+            Some(local_improver) => local_improver,
+            None => Box::new(Minimizer::new(neighborhood, objective.clone()))
+                as Box<dyn LocalImprover<S> + 'a>,
+        };
         Self {
-            neighborhood,
             objective,
             local_improver,
             function_between_steps: function_between_steps
@@ -95,20 +98,14 @@ impl<S> LocalSearchSolver<S> {
     }
 }
 
-impl<S> Solver<S> for LocalSearchSolver<S> {
+impl<'a, S> Solver<S> for LocalSearchSolver<'a, S> {
     /// Finds a local minimum by iteratively improving the given initial solution.
     fn solve(&self, initial_solution: S) -> EvaluatedSolution<S> {
         let start_time = stdtime::Instant::now();
 
-        let minimizer: Box<dyn LocalImprover<S>> = Box::new(Minimizer::new(
-            self.neighborhood.clone(),
-            self.objective.clone(),
-        ));
-        let local_improver = self.local_improver.as_ref().unwrap_or(&minimizer);
-
         let mut current_solution = self.objective.evaluate(initial_solution);
         let mut iteration_counter = 1;
-        while let Some(new_solution) = local_improver.improve(&current_solution) {
+        while let Some(new_solution) = self.local_improver.improve(&current_solution) {
             (self.function_between_steps)(
                 iteration_counter,
                 &new_solution,
