@@ -105,6 +105,7 @@ pub fn build(tsp_instance: Arc<TspInstance>) -> TabuSearchSolver<TspTour, Tabu> 
     let neighborhood = Arc::new(ThreeOptTabuNeighborhood::new(tsp_instance.clone()));
     let tabu_list_size = 30;
     let iteration_without_global_improvement_limit = 100;
+
     TabuSearchSolver::initialize(
         neighborhood,
         objective,

@@ -94,9 +94,7 @@ impl TspTour {
         let mut new_distance = self.total_distance;
         let n = self.nodes.len();
 
-        // Calculate the change in distance
-
-        // Remove the edges (i, i+1), (j, j+1), and (k, k+1)
+        // Remove distance of arcs (i, i+1), (j, j+1), and (k, k+1)
         new_distance -= self
             .tsp_instance
             .get_distance(self.nodes[i], self.nodes[(i + 1) % n]);
@@ -107,7 +105,7 @@ impl TspTour {
             .tsp_instance
             .get_distance(self.nodes[k], self.nodes[(k + 1) % n]);
 
-        // Add the edges (i, j+1), (j, k+1), and (k, i+1)
+        // Add distance of arcs (i, j+1), (j, k+1), and (k, i+1)
         new_distance += self
             .tsp_instance
             .get_distance(self.nodes[i], self.nodes[(j + 1) % n]);

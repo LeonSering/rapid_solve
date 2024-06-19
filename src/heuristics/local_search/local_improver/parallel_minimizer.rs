@@ -10,8 +10,7 @@ use crate::objective::Objective;
 use std::sync::Arc;
 
 /// [`ParallelMinimizer`] searches the whole [`Neighborhood`] of a solution in parallel and returns the best neighbor.
-/// * This is done in parallel using
-/// [`par_bridge()`][rayon::iter::ParallelBridge] of [`rayon`].
+/// * This is done in parallel using [`par_bridge()`][rayon::iter::ParallelBridge] of [`rayon`].
 /// * If the computation or the evaluation of a neighbor is CPU-heavy this might be a good choice.
 /// * Solution type `S` must implement [`Send`] and [`Sync`].
 pub struct ParallelMinimizer<S> {

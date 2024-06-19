@@ -31,7 +31,7 @@ use std::time as stdtime;
 /// Defines a neighborhood for a tabu search. Compared to a regular neighborhood, a tabu
 /// neighborhood takes a tabu list as an additional argument and returns in addition to the
 /// neighbors a list of tabus that should be added to the tabu list.
-pub trait TabuNeighborhood<S, T> {
+pub trait TabuNeighborhood<S, T>: Send + Sync {
     /// For a given solution and a provided tabu list, it returns an iterator over the neighbors of the
     /// solution. Each neighbor is paired with a list of tabus that should be added to the tabu list.
     fn neighbors_of<'a>(
