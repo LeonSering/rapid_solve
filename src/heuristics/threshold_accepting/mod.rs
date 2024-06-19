@@ -1,5 +1,5 @@
 //! This module contains the [`ThresholdAcceptingSolver`] implementing the
-//! [threshold accpeting heuristic](https://doi.org/10.1016%2F0021-9991%2890%2990201-B).
+//! [threshold accpeting metaheuristic](https://doi.org/10.1016%2F0021-9991%2890%2990201-B).
 //! * Starts with an initial solution and iteratively considers neighbors.
 //! * An improvement is always accepted, but a worse neighbor is also accepted if the difference in objective value
 //! is below a given threshold.

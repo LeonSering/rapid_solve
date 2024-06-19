@@ -6,10 +6,12 @@ use crate::objective::EvaluatedSolution;
 use crate::objective::Objective;
 use std::sync::Arc;
 
-/// [`Minimizer`] searches the whole [`Neighborhood`] of a solution and returns the best neighbor.
+/// [`Minimizer`] searches the whole [`Neighborhood`] of a solution and returns the best neighbor
+/// if it is better than the given solution.
 /// * No parallelism is used.
 /// * Works for every solution type `S`.
 /// * Is fast if the computation and the evaluating of a neighbor is cheap.
+/// * If no neighbor is better than the given solution (or no neighbor exists), `None` is returned.
 pub struct Minimizer<S> {
     neighborhood: Arc<dyn Neighborhood<S>>,
     objective: Arc<Objective<S>>,

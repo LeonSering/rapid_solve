@@ -21,6 +21,7 @@ impl ThreeOptNeighborhood {
 }
 
 impl Neighborhood<TspTour> for ThreeOptNeighborhood {
+    /// Generates all neighbors of the given tour by applying a 3-opt move.
     fn neighbors_of<'a>(
         &'a self,
         tour: &'a TspTour,

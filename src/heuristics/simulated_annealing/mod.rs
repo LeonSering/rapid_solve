@@ -1,5 +1,5 @@
 //! This module contains the [`SimulatedAnnealingSolver`] implementing the
-//! [simulated annealing heuristic](https://en.wikipedia.org/wiki/Simulated_annealing).
+//! [simulated annealing metaheuristic](https://en.wikipedia.org/wiki/Simulated_annealing).
 //! * Starts with an initial solution and iteratively considers neighbors.
 //! * An improvement is always accepted, but a worse neighbor is also accepted with a certain
 //! probability.

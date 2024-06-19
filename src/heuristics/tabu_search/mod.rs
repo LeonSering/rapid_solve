@@ -1,5 +1,23 @@
-//! TODO
-mod tabu_improver;
+//! This module contains the [`TabuSearchSolver`] implementing the
+//! [tabu search metaheuristic](https://en.wikipedia.org/wiki/Tabu_search).
+//! There are several [`tabu_improvers`][`tabu_improver`] (neighborhood exploration stategies)
+//! to choose from.
+//! * This solver requires a [`TabuNeighborhood`], which, in comparison to a regular
+//! [`Neighborhood`][crate::heuristics::common::Neighborhood],
+//! requires a tabu list as an additional argument and returns in addition to the neighbors a list
+//! of tabus that should be added to the tabu list.
+//! * Starts with an initial solution and iteratively explores the neighborhood of the current
+//! solution, while ignoring tabu solutions.
+//! * The best non-tabu neighbor, even if it is worse than the current solution, is chosen.
+//! * Each neighbor is paired with a list of tabus that should be added to the tabu list.
+//! * A good tabu should forbid to return to the previous solution.
+//! * The list of tabus is limited in size, and the oldest tabus are removed when the list is full.
+//! * The search stops after a certain number of iterations, after a certain time limit, or if no
+//! global improvement is found after a certain number of iterations.
+//! * The best solution  seen is returned.
+//!
+//! For examples, see the [tabu search solver][crate::examples::tsp::solvers::tabu_search] for the TSP.
+pub mod tabu_improver;
 
 use self::tabu_improver::{TabuImprover, TabuMinimizer};
 
@@ -10,11 +28,12 @@ use std::collections::VecDeque;
 use std::sync::Arc;
 use std::time as stdtime;
 
-/// Defines a neighborhood for a tabu search.
-/// For a given solution and a provided tabu list, it returns an iterator over the neighbors of the
-/// solution. Each neighbor is paired with a list of tabus that should be added to the tabu list.
+/// Defines a neighborhood for a tabu search. Compared to a regular neighborhood, a tabu
+/// neighborhood takes a tabu list as an additional argument and returns in addition to the
+/// neighbors a list of tabus that should be added to the tabu list.
 pub trait TabuNeighborhood<S, T> {
-    /// TODO
+    /// For a given solution and a provided tabu list, it returns an iterator over the neighbors of the
+    /// solution. Each neighbor is paired with a list of tabus that should be added to the tabu list.
     fn neighbors_of<'a>(
         &'a self,
         solution: &'a S,
@@ -22,7 +41,20 @@ pub trait TabuNeighborhood<S, T> {
     ) -> Box<dyn Iterator<Item = (S, Vec<T>)> + Send + Sync + 'a>;
 }
 
-/// TODO
+/// A tabu search solver that uses a [`TabuNeighborhood`], an [`Objective`], a tabu list size, as
+/// well as a termination criterion to find a good solution.
+/// * There are a variety of [`TabuImprovers`][`TabuImprover`] that can be used with this solver.
+/// * The `function_between_steps` is executed after each improvement step.
+/// * The deafult [`TabuImprover`] (if `None`) is [`TabuMinimizer`].
+/// * The default `function_between_steps` (if `None`) is printing the iteration number, the
+/// objective value (in comparison the the previous objective value) and the time elapsed since the
+/// start.
+/// * The termination criterion can be either the maximal number of iterations without global
+/// improvement, a time limit, or a maximal number of iterations. (One of them must be set.)
+///
+/// For a high-level overview, see the [module documentation][super::tabu_search] and for examples,
+/// see the [tabu search solver][crate::examples::tsp::solvers::tabu_search] for the
+/// TSP.
 pub struct TabuSearchSolver<S, T> {
     objective: Arc<Objective<S>>,
     tabu_list_size: usize,
@@ -34,7 +66,9 @@ pub struct TabuSearchSolver<S, T> {
 }
 
 impl<S: 'static, T: 'static> TabuSearchSolver<S, T> {
-    /// TODO
+    /// Creates a new [`TabuSearchSolver`] with the given [`TabuNeighborhood`], [`Objective`], tabu
+    /// list size, and as a termination criterion the maximal number of iterations without global
+    /// improvement.
     pub fn initialize(
         neighborhood: Arc<dyn TabuNeighborhood<S, T>>,
         objective: Arc<Objective<S>>,
@@ -53,7 +87,22 @@ impl<S: 'static, T: 'static> TabuSearchSolver<S, T> {
         )
     }
 
-    /// TODO
+    /// Creates a new [`TabuSearchSolver`] with the given [`TabuNeighborhood`], [`Objective`], tabu
+    /// list size.
+    /// * `local_improver` (implementing [`TabuImprover`]) specifies the how the neighborhood is
+    /// explored. If `None`, the default is [`TabuMinimizer`].
+    /// * `function_between_steps` is executed after each improvement step. If `None`, the default
+    /// is printing the iteration number, the objective value (in comparison the the previous
+    /// objective value) and the time elapsed since the start.
+    /// * `iteration_without_global_improvement_limit` is the maximum number of iterations allowed
+    /// without global improvement. If `None`, there is no limit.
+    /// * `time_limit` is the maximum time allowed for the local search to start a new iteration.
+    /// The last iteration is allowed to finish. If `None`, there is no time limit.
+    /// * `iteration_limit` is the maximum number of iterations allowed for the local search. If
+    /// `None`, there is no iteration limit.
+    /// * At least one of `iteration_without_global_improvement_limit`, `time_limit` or
+    /// `iteration_limit` must be set.
+    /// * If multiple termination criteria are set, the search stops when any of them is reached.
     #[allow(clippy::too_many_arguments)]
     pub fn with_options(
         neighborhood: Arc<dyn TabuNeighborhood<S, T>>,
@@ -91,7 +140,7 @@ impl<S: 'static, T: 'static> TabuSearchSolver<S, T> {
 }
 
 impl<S: Clone, T: std::fmt::Debug> Solver<S> for TabuSearchSolver<S, T> {
-    /// TODO
+    /// Solves the problem using the tabu search heuristic.
     fn solve(&self, initial_solution: S) -> EvaluatedSolution<S> {
         let start_time = stdtime::Instant::now();
 

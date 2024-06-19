@@ -1,3 +1,5 @@
+//! [`TabuMinimizer`] searches the whole [`TabuNeighborhood`] of a solution and returns the best
+//! neighbor.
 use std::{collections::VecDeque, sync::Arc};
 
 use crate::{
@@ -7,12 +9,19 @@ use crate::{
 
 use super::TabuImprover;
 
+/// [`TabuMinimizer`] searches the whole [`TabuNeighborhood`] of a solution (and a tabu list)
+/// and returns the best non-tabu neighbor with new tabus.
+/// * No parallelism is used.
+/// * Works for every solution type `S` and tabu type `T`.
+/// * Is fast if the computation and the evaluating of a neighbor is cheap.
+/// * If all neighbors are tabu, `None` is returned.
 pub struct TabuMinimizer<S, T> {
     neighborhood: Arc<dyn TabuNeighborhood<S, T>>,
     objective: Arc<Objective<S>>,
 }
 
 impl<S, T> TabuMinimizer<S, T> {
+    /// Creates a new [`TabuMinimizer`] with the given [`TabuNeighborhood`] and [`Objective`].
     pub fn new(
         neighborhood: Arc<dyn TabuNeighborhood<S, T>>,
         objective: Arc<Objective<S>>,
@@ -25,6 +34,8 @@ impl<S, T> TabuMinimizer<S, T> {
 }
 
 impl<S, T> TabuImprover<S, T> for TabuMinimizer<S, T> {
+    /// Searches the whole [`TabuNeighborhood`] of a solution (and a tabu list) and returns the best
+    /// non-tabu neighbor with new tabus.
     fn improve(
         &self,
         solution: &EvaluatedSolution<S>,
