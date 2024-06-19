@@ -1,5 +1,5 @@
 //! [`Minimizer`] searches the whole [`Neighborhood`] of a solution and returns the best
-//! neighbor.
+//! improving neighbor.
 use super::super::Neighborhood;
 use super::LocalImprover;
 use crate::objective::EvaluatedSolution;

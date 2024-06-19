@@ -143,7 +143,6 @@ impl<S> SimulatedAnnealingSolver<S> {
 }
 
 impl<S: Clone> Solver<S> for SimulatedAnnealingSolver<S> {
-    /// Solves the problem using the simulated annealing heuristic.
     fn solve(&self, initial_solution: S) -> EvaluatedSolution<S> {
         let start_time = stdtime::Instant::now();
         let mut current_solution = self.objective.evaluate(initial_solution);

@@ -140,7 +140,6 @@ impl<S: 'static, T: 'static> TabuSearchSolver<S, T> {
 }
 
 impl<S: Clone, T: std::fmt::Debug> Solver<S> for TabuSearchSolver<S, T> {
-    /// Solves the problem using the tabu search heuristic.
     fn solve(&self, initial_solution: S) -> EvaluatedSolution<S> {
         let start_time = stdtime::Instant::now();
 

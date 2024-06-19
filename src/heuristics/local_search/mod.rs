@@ -99,7 +99,6 @@ impl<S: 'static> LocalSearchSolver<S> {
 }
 
 impl<S> Solver<S> for LocalSearchSolver<S> {
-    /// Finds a local minimum by iteratively improving the given initial solution.
     fn solve(&self, initial_solution: S) -> EvaluatedSolution<S> {
         let start_time = stdtime::Instant::now();
 

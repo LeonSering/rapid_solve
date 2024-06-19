@@ -1,5 +1,5 @@
 //! [`TabuMinimizer`] searches the whole [`TabuNeighborhood`] of a solution and returns the best
-//! neighbor.
+//! non-tabu neighbor.
 use std::{collections::VecDeque, sync::Arc};
 
 use crate::{
@@ -34,8 +34,6 @@ impl<S, T> TabuMinimizer<S, T> {
 }
 
 impl<S, T> TabuImprover<S, T> for TabuMinimizer<S, T> {
-    /// Searches the whole [`TabuNeighborhood`] of a solution (and a tabu list) and returns the best
-    /// non-tabu neighbor with new tabus.
     fn improve(
         &self,
         solution: &EvaluatedSolution<S>,

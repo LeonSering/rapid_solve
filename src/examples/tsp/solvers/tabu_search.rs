@@ -67,10 +67,6 @@ impl ThreeOptTabuNeighborhood {
 }
 
 impl TabuNeighborhood<TspTour, Tabu> for ThreeOptTabuNeighborhood {
-    /// Generates all neighbors of the given tour (and a tabu list) by applying a 3-opt move.
-    /// The tabu list is used to filter out all moves that would insert a tabu arc.
-    /// Each neighbor is equipped with the tabus that correspond to the arcs that are removed by
-    /// the move.
     fn neighbors_of<'a>(
         &'a self,
         tour: &'a TspTour,

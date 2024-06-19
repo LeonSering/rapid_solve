@@ -103,7 +103,6 @@ impl<S> ThresholdAcceptingSolver<S> {
 }
 
 impl<S: Clone> Solver<S> for ThresholdAcceptingSolver<S> {
-    /// Solves the problem using the threshold accepting heuristic.
     fn solve(&self, initial_solution: S) -> EvaluatedSolution<S> {
         let start_time = stdtime::Instant::now();
         let mut current_solution = self.objective.evaluate(initial_solution);
