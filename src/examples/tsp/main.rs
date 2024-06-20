@@ -49,6 +49,11 @@ fn main() {
             let tabu_search_solver = Box::new(solvers::tabu_search::build(tsp_instance));
             tabu_search_solver.solve(initial_tour).unwrap()
         }
+        "parallel_tabu_search" => {
+            let parallel_tabu_search_solver =
+                Box::new(solvers::parallel_tabu_search::build(tsp_instance));
+            parallel_tabu_search_solver.solve(initial_tour).unwrap()
+        }
         _ => {
             eprintln!("Unknown solver: {}", args[1]);
             print_usage(args[0].as_str());

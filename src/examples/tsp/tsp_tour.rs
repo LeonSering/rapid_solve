@@ -123,6 +123,10 @@ impl TspTour {
         new_nodes.extend_from_slice(&self.nodes[i + 1..j + 1]);
         new_nodes.extend_from_slice(&self.nodes[k + 1..]);
 
+        /* for i in 0..1000000 { // TEMP
+            let _ = i;
+        } */
+
         TspTour::new_pre_computed(new_nodes, new_distance, self.tsp_instance.clone())
     }
 }

@@ -1,7 +1,6 @@
 //! This module contains several [`TabuImprover`] implementation, which define the strategy to
 //! explore the neighborhood of a solution in each iteration of the
 //! [`TabuSearchSolver`][super::TabuSearchSolver].
-pub mod parallel_tabu_minimizer;
 pub mod tabu_minimizer;
 
 use crate::objective::EvaluatedSolution;
