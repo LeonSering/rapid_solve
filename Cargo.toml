@@ -1,6 +1,6 @@
 [package]
 name = "rapid_solve"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 description = "This library provides a metaheuristic framework for solving combinatorial optimization problems."
@@ -27,4 +27,4 @@ rayon = "1.5.1" # for parallel iterator
 itertools = "0.12.0"
 serde_json = { version = "1.0", features = ["preserve_order"]} # for reading json-files
 rand = "0.8.4" # for random number generation
-rapid_time = "0.1.1" # for durations and datetime
+rapid_time = "0.1.2" # for durations and datetime
