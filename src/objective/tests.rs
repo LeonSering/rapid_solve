@@ -1,4 +1,4 @@
-use crate::time::Duration;
+use rapid_time::Duration;
 
 use super::*;
 

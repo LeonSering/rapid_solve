@@ -153,9 +153,16 @@ version = "0.1.0"
 dependencies = [
  "itertools",
  "rand",
+ "rapid_time",
  "rayon",
  "serde_json",
 ]
+
+[[package]]
+name = "rapid_time"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e279bffceeb65e2ed5314378d6fc9924d2d161ade1f38474859e5d0b7794775c"
 
 [[package]]
 name = "rayon"

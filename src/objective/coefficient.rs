@@ -3,7 +3,7 @@
 
 use std::{fmt, ops::Mul};
 
-use crate::time::Duration;
+use rapid_time::Duration;
 
 use super::base_value::BaseValue;
 

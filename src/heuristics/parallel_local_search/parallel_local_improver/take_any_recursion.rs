@@ -1,11 +1,10 @@
-//! [`TakeAnyParallelRecursion`] searches in parallel for an improving neighbor and takes the first
+//! [`TakeAnyRecursion`] searches in parallel for an improving neighbor and takes the first
 //! one that is found. If no improving neighbor is found, it takes the best solutions found to
 //! recursion.
-use super::super::Neighborhood;
-use super::LocalImprover;
+use super::super::ParallelNeighborhood;
+use super::ParallelLocalImprover;
 use crate::objective::EvaluatedSolution;
 use crate::objective::{Objective, ObjectiveValue};
-use rayon::iter::ParallelBridge;
 use rayon::prelude::*;
 use std::sync::mpsc::channel;
 use std::sync::Arc;
@@ -16,35 +15,35 @@ use std::sync::Mutex;
 /// recursion.
 /// * uses parallel computation at two steps:
 ///   - In the recursion when multiple solutions are given, each solution get its own thread.
-///   - Within each thread the neighborhood iterator is tranformed to a
-///   [`ParallelIterator`] (messes up the ordering).
+///   - Within each thread the neighborhood is given as [`ParallelIterator`] from the
+///   [`ParallelNeighborhood`].
 /// * As soon as an improving solution is found a terminus-signal is broadcast to all other threads.
 /// * If no improving solution is found the best `recursion_width`-many solutions per thread (!) are
 /// taken to recursion (dublicates according to the objective value are removed).
-/// * Is can be fast if the computation or evaluation of a neighbor is CPU-heavy and the [`Neighborhood`]
+/// * Is can be fast if the computation or evaluation of a neighbor is CPU-heavy and the [`ParallelNeighborhood`]
 /// is large.
 /// * Produces quite a bit of overhead.
 /// * Is not deterministic.
 /// * The diversification for recursion is probably low.
-pub struct TakeAnyParallelRecursion<S> {
+pub struct TakeAnyRecursion<S, N> {
     recursion_depth: u8,
     recursion_width: u8,
-    neighborhood: Arc<dyn Neighborhood<S>>,
+    neighborhood: Arc<N>,
     objective: Arc<Objective<S>>,
 }
 
-impl<S> TakeAnyParallelRecursion<S> {
-    /// Creates a new instance of [`TakeAnyParallelRecursion`]. In addition to the [`Neighborhood`]
+impl<S, N> TakeAnyRecursion<S, N> {
+    /// Creates a new instance of [`TakeAnyRecursion`]. In addition to the [`ParallelNeighborhood`]
     /// and the [`Objective`] the following parameters are needed:
     /// * `recursion_depth` is the number of recursions to be done.
     /// * `recursion_width` is the number of solutions to be taken to recursion.
     pub fn new(
         recursion_depth: u8,
         recursion_width: u8,
-        neighborhood: Arc<dyn Neighborhood<S>>,
+        neighborhood: Arc<N>,
         objective: Arc<Objective<S>>,
-    ) -> TakeAnyParallelRecursion<S> {
-        TakeAnyParallelRecursion {
+    ) -> TakeAnyRecursion<S, N> {
+        TakeAnyRecursion {
             recursion_depth,
             recursion_width,
             neighborhood,
@@ -53,14 +52,16 @@ impl<S> TakeAnyParallelRecursion<S> {
     }
 }
 
-impl<S: Send + Sync + Clone> LocalImprover<S> for TakeAnyParallelRecursion<S> {
+impl<S: Send + Sync + Clone, N: ParallelNeighborhood<S>> ParallelLocalImprover<S>
+    for TakeAnyRecursion<S, N>
+{
     fn improve(&self, solution: &EvaluatedSolution<S>) -> Option<EvaluatedSolution<S>> {
         let old_objective = solution.objective_value();
         self.improve_recursion(vec![solution.clone()], old_objective, self.recursion_depth)
     }
 }
 
-impl<S: Send + Sync + Clone> TakeAnyParallelRecursion<S> {
+impl<S: Send + Sync + Clone, N: ParallelNeighborhood<S>> TakeAnyRecursion<S, N> {
     fn improve_recursion(
         &self,
         solutions: Vec<EvaluatedSolution<S>>,
@@ -90,7 +91,6 @@ impl<S: Send + Sync + Clone> TakeAnyParallelRecursion<S> {
                     let result = self
                         .neighborhood
                         .neighbors_of(sol.solution())
-                        .par_bridge()
                         .map(|neighbor| self.objective.evaluate(neighbor))
                         .find_any(|evaluated_neighbor| {
                             if remaining_recursion > 0 {

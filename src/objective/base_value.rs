@@ -6,7 +6,7 @@ use std::{
     ops::{Add, Sub},
 };
 
-use crate::time::Duration;
+use rapid_time::Duration;
 
 const TOLERANCE: f64 = 0.0001;
 

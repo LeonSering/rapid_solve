@@ -8,3 +8,4 @@ mod neighborhood;
 pub use function_between_steps::default_function_between_steps;
 pub use function_between_steps::FunctionBetweenSteps;
 pub use neighborhood::Neighborhood;
+pub use neighborhood::ParallelNeighborhood;

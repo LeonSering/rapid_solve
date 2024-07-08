@@ -54,7 +54,7 @@ use crate::objective::{Objective, ObjectiveValue};
 use std::sync::Arc;
 
 /// Builds a [`SimulatedAnnealingSolver`] for the TSP.
-/// * The neighborhood is the 3-opt neighborhood, i.e., the neighborhood that consists of
+/// * The neighborhood is the [3-opt neighborhood][RotatedThreeOptNeighborhood], i.e., the neighborhood that consists of
 /// all tours that can be obtained by applying the 3-opt operation.
 /// * Since starting each neighborhood with the index (0, 1, 2) leads to back and forth moves,
 /// the [`TspTour`][`super::super::tsp_tour::TspTour`] is wrapped in a [`TspTourWithInfo`] to store

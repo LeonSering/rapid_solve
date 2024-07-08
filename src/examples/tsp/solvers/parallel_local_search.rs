@@ -1,30 +1,31 @@
-//! For a basic [`LocalSearchSolver`], we need to define an [`Objective`] ([length of the TSP tour][build_tsp_objective]) and for every tour the
-//! [`Neighborhood`][`crate::heuristics::common::Neighborhood`] ([all tours that can be reached
-//! by a single 3-opt move][ThreeOptNeighborhood]).
-//! This solver searches in each step the whole neighborhood of the current [`TspTour`] (non parallel) and
+//! For a [`ParallelLocalSearchSolver`], we need to define an [`Objective`] ([length of the TSP
+//! tour][build_tsp_objective]) and for every tour the
+//! [`ParallelNeighborhood`][`crate::heuristics::common::ParallelNeighborhood`]([all tours that can
+//! be reached by a single 3-opt move][ParallelThreeOptNeighborhood]).
+//! This solver searches in each step the whole neighborhood of the current [`TspTour`] in parallel and
 //! picks the best neighbor.
 //! ```ignore
-//! pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<TspTour> {
+//! pub fn build(tsp_instance: Arc<TspInstance>) -> ParallelLocalSearchSolver<TspTour> {
 //!     let objective: Arc<Objective<TspTour>> = Arc::new(build_tsp_objective());
-//!     let neighborhood = Arc::new(ThreeOptNeighborhood::new(tsp_instance));
-//!     LocalSearchSolver::initialize(neighborhood, objective)
+//!     let neighborhood = Arc::new(ParallelThreeOptNeighborhood::new(tsp_instance));
+//!     ParallelLocalSearchSolver::initialize(neighborhood, objective)
 //! }
 //! ```
 use super::super::objective::build_tsp_objective;
 use super::super::tsp_instance::TspInstance;
 use super::super::tsp_tour::TspTour;
-use crate::examples::tsp::neighborhood::ThreeOptNeighborhood;
-use crate::heuristics::local_search::LocalSearchSolver;
+use crate::examples::tsp::neighborhood::ParallelThreeOptNeighborhood;
+use crate::heuristics::parallel_local_search::ParallelLocalSearchSolver;
 use crate::objective::Objective;
 use std::sync::Arc;
 
-/// Builds a local search solver with the default
-/// [`LocalImprover`][`crate::heuristics::local_search::local_improver::LocalImprover`]
-/// [`Minimizer`][`crate::heuristics::local_search::local_improver::Minimizer`].
-pub fn build(tsp_instance: Arc<TspInstance>) -> LocalSearchSolver<TspTour> {
+/// Builds a parallel local search solver with the default
+/// [`ParallelLocalImprover`][`crate::heuristics::parallel_local_search::parallel_local_improver::ParallelLocalImprover`]
+/// [`ParallelMinimizer`][`crate::heuristics::parallel_local_search::parallel_local_improver::ParallelMinimizer`].
+pub fn build(tsp_instance: Arc<TspInstance>) -> ParallelLocalSearchSolver<TspTour> {
     let objective: Arc<Objective<TspTour>> = Arc::new(build_tsp_objective());
-    let neighborhood = Arc::new(ThreeOptNeighborhood::new(tsp_instance));
-    LocalSearchSolver::initialize(neighborhood, objective)
+    let neighborhood = Arc::new(ParallelThreeOptNeighborhood::new(tsp_instance));
+    ParallelLocalSearchSolver::initialize(neighborhood, objective)
 }
 
 #[cfg(test)]
@@ -37,7 +38,7 @@ mod tests {
     use std::sync::Arc;
 
     #[test]
-    fn test_basic_local_search() {
+    fn test_parallel_local_search() {
         let tsp_instance = Arc::new(TspInstance::new(vec![
             vec![0.0, 10.0, 15.0, 20.0],
             vec![10.0, 0.0, 35.0, 25.0],
@@ -55,7 +56,7 @@ mod tests {
     }
 
     #[test]
-    fn test_basic_local_search_large_instance() {
+    fn test_parallel_local_search_large_instance() {
         let tsp_instance = Arc::new(
             TspInstance::from_tsplib_file("resources/tsp_test_instances/berlin52.tsp").unwrap(),
         );

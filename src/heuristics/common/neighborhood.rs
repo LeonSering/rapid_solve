@@ -1,6 +1,8 @@
 //! This module provides the [`Neighborhood`] trait which is used to define a local search
 //! neighborhood.
 
+use rayon::iter::ParallelIterator;
+
 /// A local search neighborhood that provides for each solution an iterator over all neighbors.
 /// The provided `current_solution`, as well as the [`Neighborhood`] instance must live as long as the iterator.
 /// (Note that the iterator highly depends on the `current_solution` and that the [`Neighborhood`] may
@@ -11,4 +13,14 @@ pub trait Neighborhood<S>: Send + Sync {
         &'a self,
         current_solution: &'a S,
     ) -> Box<dyn Iterator<Item = S> + Send + Sync + 'a>;
+}
+
+/// A parallel local search neighborhood that provides for each solution an [`ParallelIterator`] over all
+/// neighbors.
+/// The provided `current_solution`, as well as the [`Neighborhood`] instance must live as long as the iterator.
+/// (Note that the iterator highly depends on the `current_solution` and that the [`Neighborhood`] may
+/// have some attributes which goes into the iterator.)
+pub trait ParallelNeighborhood<S: Send>: Send + Sync {
+    /// Returns an [`ParallelIterator`] over all neighbors of `current_solution`.
+    fn neighbors_of<'a>(&'a self, current_solution: &'a S) -> impl ParallelIterator<Item = S> + 'a;
 }

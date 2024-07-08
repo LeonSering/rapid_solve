@@ -7,6 +7,8 @@
 //! The following [metaheuristics][heuristics] are included:
 //! - [local search][heuristics::local_search] (with recursion and several neighborhood
 //! exploration strategies)
+//! - [parallel local search][heuristics::parallel_local_search] (the neighborhood is explored in
+//! parallel using [`rayon`](https://docs.rs/rayon/))
 //! - [threshold accepting][heuristics::threshold_accepting]
 //! - [simulated annealing][heuristics::simulated_annealing]
 //! - [tabu search][heuristics::tabu_search] (and a faster [parallel
@@ -256,4 +258,3 @@
 pub mod examples;
 pub mod heuristics;
 pub mod objective;
-pub mod time;

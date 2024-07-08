@@ -25,11 +25,15 @@ fn main() {
                 Box::new(solvers::basic_local_search::build(tsp_instance));
             basic_local_search_solver.solve(initial_tour).unwrap()
         }
-
         "take_first_local_search" => {
             let take_first_local_search_solver =
                 Box::new(solvers::take_first_local_search::build(tsp_instance));
             take_first_local_search_solver.solve(initial_tour).unwrap()
+        }
+        "parallel_local_search" => {
+            let parallel_local_search_solver =
+                Box::new(solvers::parallel_local_search::build(tsp_instance));
+            parallel_local_search_solver.solve(initial_tour).unwrap()
         }
         "threshold_accepting" => {
             let threshold_accepting_solver =

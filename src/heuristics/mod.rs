@@ -3,6 +3,7 @@
 use crate::objective::EvaluatedSolution;
 pub mod common;
 pub mod local_search;
+pub mod parallel_local_search;
 pub mod parallel_tabu_search;
 pub mod simulated_annealing;
 pub mod tabu_search;

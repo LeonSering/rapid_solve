@@ -35,7 +35,8 @@ use std::time as stdtime;
 /// a [`ParallelIterator`] (from the [`rayon`] crate) over the neighbors of the solution together with
 /// a list of tabus that should be added to the tabu list.
 pub trait ParallelTabuNeighborhood<S: Send, T: Send>: Send + Sync {
-    /// TODO
+    /// Returns an [`ParallelIterator`] over all neighbors of `solution` together with a list of
+    /// tabus that should be added to the tabu list.
     fn neighbors_of<'a>(
         &'a self,
         solution: &'a S,

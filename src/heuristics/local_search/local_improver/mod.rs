@@ -2,15 +2,11 @@
 //! explore the neighborhood of a solution in each iteration of the
 //! [`LocalSearchSolver`][super::LocalSearchSolver].
 mod minimizer;
-mod parallel_minimizer;
-mod take_any_parallel_recursion;
 mod take_first;
 mod take_first_recursion;
 
 use crate::objective::EvaluatedSolution;
 pub use minimizer::Minimizer;
-pub use parallel_minimizer::ParallelMinimizer;
-pub use take_any_parallel_recursion::TakeAnyParallelRecursion;
 pub use take_first::TakeFirst;
 pub use take_first_recursion::TakeFirstRecursion;
 
