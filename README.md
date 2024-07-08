@@ -65,7 +65,6 @@ objective where `PermutationViolation` is minimized first and only for tie-break
 `SquaredDifference` is considered.
 
 ```rust
-# struct Solution(Vec<i64>);
 use rapid_solve::objective::{BaseValue, Indicator, Objective};
 
 struct PermutationViolation;
