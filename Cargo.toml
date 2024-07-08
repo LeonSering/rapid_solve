@@ -4,8 +4,7 @@ version = "0.1.0"
 edition = "2021"
 license = "MIT"
 description = "This library provides a metaheuristic framework for solving combinatorial optimization problems."
-keywords = ["metaheuristic", "combinatorial_optimization", "optimization", "heuristic", "TSP", "local_search",
-"simulated_annealing", "threshold_accepting", "tabu_search"]
+keywords = ["metaheuristic", "local_search", "simulated_annealing", "threshold_accepting", "tabu_search"]
 categories = ["algorithms", "science", "optimization"]
 repository = "https://github.com/LeonSering/rapid_solve"
 readme = "README.md"
