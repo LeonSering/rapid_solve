@@ -1,4 +1,4 @@
-//! [`ParallelTabuMinimizer`] searches the whole [`TabuNeighborhood`] of a solution in parallel
+//! [`ParallelTabuMinimizer`] searches the whole [`ParallelTabuNeighborhood`] of a solution in parallel
 //! and returns the best non-tabu neighbor.
 
 use crate::{
@@ -10,11 +10,9 @@ use std::{collections::VecDeque, sync::Arc};
 
 use super::ParallelTabuImprover;
 
-// TODO: Check when this Improver performs better than the normal TabuMinimizer
 /// [`ParallelTabuMinimizer`] searches the whole [`ParallelTabuNeighborhood`] of a solution (and a tabu list)
 /// and returns the best non-tabu neighbor with new tabus.
-/// * This is done in parallel using [`par_bridge()`][rayon::iter::ParallelBridge] of [`rayon`].
-/// TODO
+/// * This is done in parallel using the [`ParallelIterator`] of [`rayon`].
 /// * Solution type `S` and the tabu type `T` must implement [`Send`] and [`Sync`].
 /// * If the computation or the evaluation of a neighbor is CPU-heavy this might be a good choice.
 /// * If all neighbors are tabu, `None` is returned.
@@ -24,7 +22,7 @@ pub struct ParallelTabuMinimizer<S, N> {
 }
 
 impl<S, N> ParallelTabuMinimizer<S, N> {
-    /// Creates a new [`ParallelTabuMinimizer`] with the given [`TabuNeighborhood`] and [`Objective`].
+    /// Creates a new [`ParallelTabuMinimizer`] with the given [`ParallelTabuNeighborhood`] and [`Objective`].
     pub fn new(neighborhood: Arc<N>, objective: Arc<Objective<S>>) -> Self {
         Self {
             neighborhood,

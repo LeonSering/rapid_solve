@@ -1,3 +1,5 @@
+//! This module contains the implementation of the [`ParallelTabuSearchSolver`] for the TSP, see
+//! the [build] function for details.
 use std::{collections::VecDeque, sync::Arc};
 
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
@@ -51,11 +53,16 @@ impl Tabu {
     }
 }
 
+/// A 3-opt [`ParallelTabuNeighborhood`] for the TSP.
+/// For a given tour and a tabu list, all 3-opt moves are generated as a [`ParallelIterator`],
+/// all moves that are tabu (i.e., that would insert a tabu arc) are filtered out.
+/// Each 3-opt move is equipped with three tabus, one for each arc that is removed by the move.
 pub struct ParallelThreeOptTabuNeighborhood {
     tsp_instance: Arc<TspInstance>,
 }
 
 impl ParallelThreeOptTabuNeighborhood {
+    /// Creates a new [`ParallelThreeOptTabuNeighborhood`] for the given [`TspInstance`].
     pub fn new(tsp_instance: Arc<TspInstance>) -> Self {
         Self { tsp_instance }
     }
@@ -84,14 +91,14 @@ impl ParallelTabuNeighborhood<TspTour, Tabu> for ParallelThreeOptTabuNeighborhoo
     }
 }
 
-/// Builds a [`TabuSearchSolver`] for the TSP.
+/// Builds a [`ParallelTabuSearchSolver`] for the TSP.
 /// * The neighborhood is the 3-opt neighborhood, i.e., the neighborhood that consists of
 /// all tours that can be obtained by applying the 3-opt operation.
 /// * The tabu list size is set to 30.
 /// * The iteration without global improvement limit is set to 100, i.e., the search stops if no
 /// global improvement is found for 100 iterations.
-/// * Takes the default ['TabuImprover`] [`Minimizer`] which returns the best non-tabu neighbor
-/// without using parallelism.
+/// * Takes the default ['ParallelTabuImprover`] [`ParallelTabuMinimizer`] which returns the best non-tabu neighbor
+/// while using parallelism.
 pub fn build(tsp_instance: Arc<TspInstance>) -> ParallelTabuSearchSolver<TspTour, Tabu> {
     let objective: Arc<Objective<TspTour>> = Arc::new(build_tsp_objective());
     let neighborhood = Arc::new(ParallelThreeOptTabuNeighborhood::new(tsp_instance.clone()));

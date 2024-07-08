@@ -1,3 +1,22 @@
+//! This module contains the [`ParallelTabuSearchSolver`] implementing the
+//! [tabu search metaheuristic](https://en.wikipedia.org/wiki/Tabu_search), where the neighborhood
+//! exploration is done in parallel.
+//! * This solver requires a [`ParallelTabuNeighborhood`], which, in comparison to a regular
+//! [`Neighborhood`][crate::heuristics::common::Neighborhood],
+//! requires a tabu list as an additional argument and returns
+//! a [`ParallelIterator`] (from the [`rayon`] crate) over the neighbors of the solution together with a list of tabus that
+//! should be added to the tabu list.
+//! * Starts with an initial solution and explores the neighborhood of the current
+//! solution in parallel, while ignoring tabu solutions.
+//! * The best non-tabu neighbor, even if it is worse than the current solution, is chosen.
+//! * Each neighbor is paired with a list of tabus that should be added to the tabu list.
+//! * A good tabu should forbid to return to the previous solution.
+//! * The list of tabus is limited in size, and the oldest tabus are removed when the list is full.
+//! * The search stops after a certain number of iterations, after a certain time limit, or if no
+//! global improvement is found after a certain number of iterations.
+//! * The best solution  seen is returned.
+//!
+//! For examples, see the [tabu search solver][crate::examples::tsp::solvers::tabu_search] for the TSP.
 pub mod parallel_tabu_improver;
 
 use rayon::iter::ParallelIterator;
@@ -11,7 +30,10 @@ use std::collections::VecDeque;
 use std::sync::Arc;
 use std::time as stdtime;
 
-/// TODO
+/// Defines a neighborhood for a tabu search. Compared to a regular neighborhood, a tabu
+/// neighborhood takes a tabu list as an additional argument and returns
+/// a [`ParallelIterator`] (from the [`rayon`] crate) over the neighbors of the solution together with
+/// a list of tabus that should be added to the tabu list.
 pub trait ParallelTabuNeighborhood<S: Send, T: Send>: Send + Sync {
     /// TODO
     fn neighbors_of<'a>(
@@ -21,6 +43,18 @@ pub trait ParallelTabuNeighborhood<S: Send, T: Send>: Send + Sync {
     ) -> impl ParallelIterator<Item = (S, Vec<T>)> + 'a;
 }
 
+/// A tabu search solver that uses a [`ParallelTabuNeighborhood`], an [`Objective`], a tabu list size, as
+/// well as a termination criterion to find a good solution.
+/// * The `function_between_steps` is executed after each improvement step.
+/// * The default `function_between_steps` (if `None`) is printing the iteration number, the
+/// objective value (in comparison the the previous objective value) and the time elapsed since the
+/// start.
+/// * The termination criterion can be either the maximal number of iterations without global
+/// improvement, a time limit, or a maximal number of iterations. (One of them must be set.)
+///
+/// For a high-level overview, see the [module documentation][super::parallel_tabu_search] and for examples,
+/// see the [parallel tabu search solver][crate::examples::tsp::solvers::parallel_tabu_search] for the
+/// TSP.
 pub struct ParallelTabuSearchSolver<S, T> {
     objective: Arc<Objective<S>>,
     tabu_list_size: usize,
@@ -32,6 +66,9 @@ pub struct ParallelTabuSearchSolver<S, T> {
 }
 
 impl<S: 'static + Send + Sync, T: 'static + Send + Sync> ParallelTabuSearchSolver<S, T> {
+    /// Creates a new [`ParallelTabuSearchSolver`] with the given [`ParallelTabuNeighborhood`], [`Objective`], tabu
+    /// list size, and as a termination criterion the maximal number of iterations without global
+    /// improvement.
     pub fn initialize(
         neighborhood: Arc<impl ParallelTabuNeighborhood<S, T> + 'static>,
         objective: Arc<Objective<S>>,
@@ -50,6 +87,20 @@ impl<S: 'static + Send + Sync, T: 'static + Send + Sync> ParallelTabuSearchSolve
         )
     }
 
+    /// Creates a new [`ParallelTabuSearchSolver`] with the given [`ParallelTabuNeighborhood`], [`Objective`], tabu
+    /// list size.
+    /// * `function_between_steps` is executed after each improvement step. If `None`, the default
+    /// is printing the iteration number, the objective value (in comparison the the previous
+    /// objective value) and the time elapsed since the start.
+    /// * `iteration_without_global_improvement_limit` is the maximum number of iterations allowed
+    /// without global improvement. If `None`, there is no limit.
+    /// * `time_limit` is the maximum time allowed for the local search to start a new iteration.
+    /// The last iteration is allowed to finish. If `None`, there is no time limit.
+    /// * `iteration_limit` is the maximum number of iterations allowed for the local search. If
+    /// `None`, there is no iteration limit.
+    /// * At least one of `iteration_without_global_improvement_limit`, `time_limit` or
+    /// `iteration_limit` must be set.
+    /// * If multiple termination criteria are set, the search stops when any of them is reached.
     #[allow(clippy::too_many_arguments)]
     pub fn with_options(
         neighborhood: Arc<impl ParallelTabuNeighborhood<S, T> + 'static>,

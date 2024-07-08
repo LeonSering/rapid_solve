@@ -98,7 +98,7 @@ impl TabuNeighborhood<TspTour, Tabu> for ThreeOptTabuNeighborhood {
 /// * The tabu list size is set to 30.
 /// * The iteration without global improvement limit is set to 100, i.e., the search stops if no
 /// global improvement is found for 100 iterations.
-/// * Takes the default ['TabuImprover`] [`Minimizer`] which returns the best non-tabu neighbor
+/// * Takes the default ['TabuImprover`] [`TabuMinimizer`] which returns the best non-tabu neighbor
 /// without using parallelism.
 pub fn build(tsp_instance: Arc<TspInstance>) -> TabuSearchSolver<TspTour, Tabu> {
     let objective: Arc<Objective<TspTour>> = Arc::new(build_tsp_objective());
