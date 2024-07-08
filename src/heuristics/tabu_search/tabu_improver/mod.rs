@@ -12,7 +12,7 @@ pub use tabu_minimizer::TabuMinimizer;
 /// * A solver is equipped with only one [`TabuImprover`].
 /// * The [`TabuImprover`] is invoked in each iteration of the tabu search.
 /// * Only returns `None` if there are no neighbors.
-pub trait TabuImprover<S, T> {
+pub trait TabuImprover<S, T>: Send + Sync {
     /// Determines for a given [`EvaluatedSolution`] and a tabu list the best neighbor, that are
     /// not tabu, together with new tabus to add to the tabu list.
     /// Returns `None` if there are no neighbors.

@@ -16,7 +16,7 @@ pub use take_any_recursion::TakeAnyRecursion;
 /// computation costs of computing and evaluating neighbors, different [`ParallelLocalImprover`] might be
 /// better.
 /// * Returns `None` if there is no better solution in the [`ParallelNeighborhood`][super::ParallelNeighborhood].
-pub trait ParallelLocalImprover<S> {
+pub trait ParallelLocalImprover<S>: Send + Sync {
     /// Determines for a given [`EvaluatedSolution`] the best neighbor that has an smaller
     /// [`ObjectiveValue`][crate::objective::ObjectiveValue].
     /// Returns `None` if there is no better solution in the [`ParallelNeighborhood`][super::ParallelNeighborhood].

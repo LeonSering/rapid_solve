@@ -18,7 +18,7 @@ pub use take_first_recursion::TakeFirstRecursion;
 /// computation costs of computing and evaluating neighbors, different [`LocalImprover`] might be
 /// better.
 /// * Returns `None` if there is no better solution in the [`Neighborhood`][super::Neighborhood].
-pub trait LocalImprover<S> {
+pub trait LocalImprover<S>: Send + Sync {
     /// Determines for a given [`EvaluatedSolution`] the best neighbor that has an smaller
     /// [`ObjectiveValue`][crate::objective::ObjectiveValue].
     /// Returns `None` if there is no better solution in the [`Neighborhood`][super::Neighborhood].
