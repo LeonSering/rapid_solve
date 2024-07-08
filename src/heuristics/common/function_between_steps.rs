@@ -16,14 +16,15 @@ use crate::objective::{EvaluatedSolution, Objective};
 /// * iteration limit (Option)
 pub type FunctionBetweenSteps<S> = Box<
     dyn Fn(
-        u32,
-        &EvaluatedSolution<S>,
-        Option<&EvaluatedSolution<S>>,
-        Arc<Objective<S>>,
-        Option<Instant>,
-        Option<stdtime::Duration>,
-        Option<u32>,
-    ),
+            u32,
+            &EvaluatedSolution<S>,
+            Option<&EvaluatedSolution<S>>,
+            Arc<Objective<S>>,
+            Option<Instant>,
+            Option<stdtime::Duration>,
+            Option<u32>,
+        ) + Send
+        + Sync,
 >;
 
 /// Default function between steps that prints the iteration number, the objective value of the
