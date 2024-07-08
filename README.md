@@ -180,4 +180,4 @@ assert_eq!(
 // one global optimum is [0, 2, 4, 6, 8, 9, 7, 5, 3, 1] with a squared differences of 34.
 ```
 
-For a more less artificial demonstration, we refer to the [tsp-example](https://docs.rs/rapid_solve/latest/rapid_solve/examples/tsp/index.html).
+For a less artificial demonstration, we refer to the [tsp-example](https://docs.rs/rapid_solve/latest/rapid_solve/examples/tsp/index.html).
