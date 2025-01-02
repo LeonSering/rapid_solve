@@ -6,13 +6,13 @@
 //! ### Metaheuristics
 //! The following [metaheuristics][heuristics] are included:
 //! - [local search][heuristics::local_search] (with recursion and several neighborhood
-//! exploration strategies)
+//!   exploration strategies, supports recursion for multiple modifactions in one step)
 //! - [parallel local search][heuristics::parallel_local_search] (the neighborhood is explored in
-//! parallel using [`rayon`](https://docs.rs/rayon/))
+//!   parallel using [`rayon`](https://docs.rs/rayon/), supports recursion)
 //! - [threshold accepting][heuristics::threshold_accepting]
 //! - [simulated annealing][heuristics::simulated_annealing]
 //! - [tabu search][heuristics::tabu_search] (and a faster [parallel
-//! version][heuristics::parallel_tabu_search])
+//!   version][heuristics::parallel_tabu_search])
 //!
 //! ### Hierarchical Objective
 //! The framework supports [hierarchical objective][objective], i.e., objectives

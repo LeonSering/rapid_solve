@@ -10,9 +10,9 @@ problems.
 The following metaheuristics are included:
 
 - [local search](https://docs.rs/rapid_solve/latest/rapid_solve/heuristics/local_search/index.html) (with several neighborhood
-  exploration strategies)
+  exploration strategies, supports recursion for multiple modifications in one step)
 - [parallel local search](https://docs.rs/rapid_solve/latest/rapid_solve/heuristics/parallel_local_search/index.html)
-  (the neighborhood is explored in parallel using [`rayon`](https://docs.rs/rayon/))
+  (the neighborhood is explored in parallel using [`rayon`](https://docs.rs/rayon/), supports recursion)
 - [threshold accepting](https://docs.rs/rapid_solve/latest/rapid_solve/heuristics/threshold_accepting/index.html)
 - [simulated annealing](https://docs.rs/rapid_solve/latest/rapid_solve/heuristics/simulated_annealing/index.html)
 - [tabu search](https://docs.rs/rapid_solve/latest/rapid_solve/heuristics/tabu_search/index.html) (and a faster [parallel

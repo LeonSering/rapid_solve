@@ -1,20 +1,21 @@
 [package]
 name = "rapid_solve"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 license = "MIT"
 description = "This library provides a metaheuristic framework for solving combinatorial optimization problems."
-keywords = ["metaheuristic", "local_search", "simulated_annealing", "threshold_accepting", "tabu_search"]
+keywords = [
+  "metaheuristic",
+  "local_search",
+  "simulated_annealing",
+  "threshold_accepting",
+  "tabu_search",
+]
 categories = ["algorithms", "science"]
 repository = "https://github.com/LeonSering/rapid_solve"
 readme = "README.md"
 authors = ["Leon Sering"]
-include = [
-    "**/*.rs",
-    "Cargo.toml",
-    "README.md",
-    "resources/**",
-]
+include = ["**/*.rs", "Cargo.toml", "README.md", "resources/**"]
 
 [[bin]]
 name = "rapid_solve_tsp_example"
@@ -25,6 +26,8 @@ path = "src/examples/tsp/main.rs"
 [dependencies]
 rayon = "1.5.1" # for parallel iterator
 itertools = "0.12.0"
-serde_json = { version = "1.0", features = ["preserve_order"]} # for reading json-files
+serde_json = { version = "1.0", features = [
+  "preserve_order",
+] } # for reading json-files
 rand = "0.8.4" # for random number generation
 rapid_time = "0.1.2" # for durations and datetime
