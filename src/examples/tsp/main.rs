@@ -75,5 +75,14 @@ fn main() {
 
 fn print_usage(program_name: &str) {
     eprintln!("Usage: {} <solver> <tsplib_file>", program_name);
-    eprintln!("  <solver>: basic | take_first");
+    eprintln!(
+        "  <solver>: \n\
+        - basic_local_search\n\
+        - take_first_local_search\n\
+        - parallel_local_search\n\
+        - threshold_accepting\n\
+        - simulated_annealing\n\
+        - tabu_search\n\
+        - parallel_tabu_search\n"
+    );
 }

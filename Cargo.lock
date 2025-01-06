@@ -149,7 +149,7 @@ dependencies = [
 
 [[package]]
 name = "rapid_solve"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "itertools",
  "rand",
